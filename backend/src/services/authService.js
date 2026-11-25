@@ -5,7 +5,7 @@ import { env } from '../config/env.js';
 import { AppError } from '../middleware/errorHandler.js';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PASSWORD_POLICY_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+export const PASSWORD_POLICY_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
 const requireJwtSecret = () => {
   if (!env.jwtSecret) {
@@ -32,6 +32,31 @@ export const sanitizeUser = (user) => ({
   collegeName: user.collegeName,
   studentId: user.studentId,
   role: user.role,
+  profilePicture: user.profilePicture || '',
+  bio: user.bio || '',
+  course: user.course || '',
+  year: user.year || '',
+  socialLinks: {
+    github: user.socialLinks?.github || '',
+    linkedin: user.socialLinks?.linkedin || '',
+  },
+  profileCompleted: Boolean(user.profileCompleted),
+  profileCompletedAt: user.profileCompletedAt || null,
+  onboarding: {
+    techInterests: user.onboarding?.techInterests || [],
+    programmingLanguages: user.onboarding?.programmingLanguages || [],
+    otherProgrammingLanguage: user.onboarding?.otherProgrammingLanguage || '',
+    frameworksAndTools: user.onboarding?.frameworksAndTools || [],
+    otherFramework: user.onboarding?.otherFramework || '',
+    codingProficiency: user.onboarding?.codingProficiency || '',
+    projectExperience: user.onboarding?.projectExperience || '',
+    preferredRoles: user.onboarding?.preferredRoles || [],
+    softSkills: user.onboarding?.softSkills || [],
+    projectPreferences: user.onboarding?.projectPreferences || [],
+  },
+  designation: user.designation || 'Admin',
+  department: user.department || '',
+  accountStatus: user.accountStatus || 'Active',
   lastLoginAt: user.lastLoginAt,
   createdAt: user.createdAt,
 });

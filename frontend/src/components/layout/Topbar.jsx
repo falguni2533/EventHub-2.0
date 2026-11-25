@@ -1,3 +1,4 @@
+
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -9,17 +10,24 @@ import {
   Menu,
   UserCircle,
 } from 'lucide-react';
+
 import { useAuth } from '../../context/AuthContext';
 
 const getInitials = (name) => {
   if (!name) return 'EH';
+
   const parts = name.trim().split(/\s+/);
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase();
+  }
+
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 };
 
 const formatNotificationDate = (timestamp) => {
   if (!timestamp) return '';
+
   try {
     return new Intl.DateTimeFormat(undefined, {
       month: 'short',
@@ -66,7 +74,9 @@ export default function Topbar({
     if (typeof onNotificationRef === 'function') {
       onNotificationRef(() => {
         const panel = notifPanelRef.current;
+
         if (!panel) return;
+
         if (supportsPopover && typeof panel.showPopover === 'function') {
           try {
             panel.showPopover({ source: notifTriggerRef.current });
@@ -96,9 +106,12 @@ export default function Topbar({
     };
   }, []);
 
-  // Fallback outside-click & Escape handling when native Popover API is unavailable
+  // Fallback outside-click and Escape handling
+  // when native Popover API is unavailable.
   useEffect(() => {
-    if (supportsPopover || (!notifOpen && !profileOpen)) return undefined;
+    if (supportsPopover || (!notifOpen && !profileOpen)) {
+      return undefined;
+    }
 
     const handleClickOutside = (event) => {
       if (
@@ -108,6 +121,7 @@ export default function Topbar({
       ) {
         setNotifOpen(false);
       }
+
       if (
         profileOpen &&
         !profilePanelRef.current?.contains(event.target) &&
@@ -126,6 +140,7 @@ export default function Topbar({
 
     document.addEventListener('mousedown', handleClickOutside);
     window.addEventListener('keydown', handleEsc);
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       window.removeEventListener('keydown', handleEsc);
@@ -134,7 +149,9 @@ export default function Topbar({
 
   const togglePanel = (panelRef, triggerRef, isOpenState, setOpenState) => {
     const panel = panelRef.current;
+
     if (!panel) return;
+
     if (supportsPopover && typeof panel.togglePopover === 'function') {
       if (panel.matches(':popover-open')) {
         panel.hidePopover();
@@ -152,6 +169,7 @@ export default function Topbar({
 
   const closePanel = (panelRef, setOpenState) => {
     const panel = panelRef.current;
+
     if (supportsPopover && panel?.matches(':popover-open')) {
       panel.hidePopover();
     } else {
@@ -163,18 +181,22 @@ export default function Topbar({
     if (healthState.loading) {
       return { className: 'is-warn', label: 'Checking API...' };
     }
+
     if (healthState.error) {
       return { className: 'is-err', label: 'API Offline' };
     }
+
     if (healthState.data?.database?.connected) {
       return { className: 'is-ok', label: 'MongoDB Live' };
     }
+
     return { className: 'is-warn', label: 'DB Pending' };
   };
 
   const handleLogout = async () => {
     setLoggingOut(true);
     closePanel(profilePanelRef, setProfileOpen);
+
     try {
       await logout();
       navigate('/login', { replace: true });
@@ -205,6 +227,7 @@ export default function Topbar({
             <ChevronRight size={13} aria-hidden="true" />
             <span className="topbar-breadcrumb-current">{title}</span>
           </nav>
+
           <h1 className="topbar-title">{title}</h1>
         </div>
       </div>
@@ -225,10 +248,16 @@ export default function Topbar({
             aria-expanded={notifOpen}
             aria-controls={notifId}
             onClick={() =>
-              togglePanel(notifPanelRef, notifTriggerRef, notifOpen, setNotifOpen)
+              togglePanel(
+                notifPanelRef,
+                notifTriggerRef,
+                notifOpen,
+                setNotifOpen
+              )
             }
           >
             <Bell size={18} aria-hidden="true" />
+
             {notifications.length > 0 && (
               <span className="topbar-notif-dot" aria-hidden="true" />
             )}
@@ -244,8 +273,11 @@ export default function Topbar({
           >
             <div className="topbar-popover-header">
               <span className="topbar-popover-title">Notifications</span>
+
               <span className="pill-badge">
-                {notifications.length > 0 ? `${notifications.length} active` : 'Up to date'}
+                {notifications.length > 0
+                  ? `${notifications.length} active`
+                  : 'Up to date'}
               </span>
             </div>
 
@@ -253,7 +285,9 @@ export default function Topbar({
               <div className="topbar-popover-empty">
                 <Bell size={20} aria-hidden="true" />
                 <p>No new notifications right now.</p>
-                <span>Event reminders and registration updates will appear here.</span>
+                <span>
+                  Event reminders and registration updates will appear here.
+                </span>
               </div>
             ) : (
               <ul className="topbar-notif-list">
@@ -261,10 +295,14 @@ export default function Topbar({
                   <li key={item.id} className="topbar-notif-item">
                     <div className="topbar-notif-item-top">
                       <strong>{item.title}</strong>
+
                       {item.timestamp && (
-                        <span>{formatNotificationDate(item.timestamp)}</span>
+                        <span>
+                          {formatNotificationDate(item.timestamp)}
+                        </span>
                       )}
                     </div>
+
                     <p>{item.detail}</p>
                   </li>
                 ))}
@@ -282,17 +320,41 @@ export default function Topbar({
             aria-expanded={profileOpen}
             aria-controls={profileId}
             onClick={() =>
-              togglePanel(profilePanelRef, profileTriggerRef, profileOpen, setProfileOpen)
+              togglePanel(
+                profilePanelRef,
+                profileTriggerRef,
+                profileOpen,
+                setProfileOpen
+              )
             }
           >
             <span className="topbar-avatar" aria-hidden="true">
-              {getInitials(user?.fullName)}
+              {user?.profilePicture ? (
+                <img
+                  src={user.profilePicture}
+                  alt=""
+                  className="topbar-avatar-img"
+                />
+              ) : (
+                getInitials(user?.fullName)
+              )}
             </span>
+
             <span className="topbar-user-meta">
-              <span className="topbar-user-name">{user?.fullName || 'User'}</span>
-              <span className="topbar-user-role">{user?.role || 'member'}</span>
+              <span className="topbar-user-name">
+                {user?.fullName || 'User'}
+              </span>
+
+              <span className="topbar-user-role">
+                {user?.role || 'member'}
+              </span>
             </span>
-            <ChevronDown size={15} className="topbar-chevron" aria-hidden="true" />
+
+            <ChevronDown
+              size={15}
+              className="topbar-chevron"
+              aria-hidden="true"
+            />
           </button>
 
           <div
@@ -304,9 +366,21 @@ export default function Topbar({
             }`}
           >
             <div className="topbar-profile-summary">
-              <div className="topbar-avatar topbar-avatar-lg" aria-hidden="true">
-                {getInitials(user?.fullName)}
+              <div
+                className="topbar-avatar topbar-avatar-lg"
+                aria-hidden="true"
+              >
+                {user?.profilePicture ? (
+                  <img
+                    src={user.profilePicture}
+                    alt=""
+                    className="topbar-avatar-img"
+                  />
+                ) : (
+                  getInitials(user?.fullName)
+                )}
               </div>
+
               <div className="topbar-profile-summary-text">
                 <strong>{user?.fullName}</strong>
                 <span>{user?.email}</span>
@@ -320,16 +394,22 @@ export default function Topbar({
               <Link
                 to={dashboardPath}
                 className="topbar-popover-item"
-                onClick={() => closePanel(profilePanelRef, setProfileOpen)}
+                onClick={() =>
+                  closePanel(profilePanelRef, setProfileOpen)
+                }
               >
                 <LayoutDashboard size={16} aria-hidden="true" />
-                <span>{isAdmin ? 'Admin Dashboard' : 'Student Dashboard'}</span>
+                <span>
+                  {isAdmin ? 'Admin Dashboard' : 'Student Dashboard'}
+                </span>
               </Link>
 
               <Link
                 to={profilePath}
                 className="topbar-popover-item"
-                onClick={() => closePanel(profilePanelRef, setProfileOpen)}
+                onClick={() =>
+                  closePanel(profilePanelRef, setProfileOpen)
+                }
               >
                 <UserCircle size={16} aria-hidden="true" />
                 <span>My Profile</span>
@@ -342,7 +422,9 @@ export default function Topbar({
                 disabled={loggingOut}
               >
                 <LogOut size={16} aria-hidden="true" />
-                <span>{loggingOut ? 'Logging out...' : 'Log Out'}</span>
+                <span>
+                  {loggingOut ? 'Logging out...' : 'Log Out'}
+                </span>
               </button>
             </div>
           </div>

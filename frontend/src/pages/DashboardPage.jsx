@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import {
@@ -14,6 +15,7 @@ import {
   UserCircle,
   Users,
 } from 'lucide-react';
+
 import StatCard from '../components/common/StatCard';
 import {
   ActivityFeed,
@@ -21,8 +23,10 @@ import {
   EmptyState,
   QuickActionsCard,
 } from '../components/common/DashboardWidgets';
+
 import { useAuth } from '../context/AuthContext';
 import { fetchStudentDashboard } from '../services/authService';
+
 import {
   formatEventDate,
   formatEventTime,
@@ -65,6 +69,7 @@ const STUDENT_QUICK_ACTIONS = [
 export default function DashboardPage() {
   const { user } = useAuth();
   const { setNotifications } = useOutletContext();
+
   const [dashboardState, setDashboardState] = useState({
     loading: true,
     data: null,
@@ -72,33 +77,51 @@ export default function DashboardPage() {
   });
 
   const loadDashboard = useCallback(async () => {
-    setDashboardState((prev) => ({ ...prev, loading: true, error: null }));
+    setDashboardState((prev) => ({
+      ...prev,
+      loading: true,
+      error: null,
+    }));
+
     try {
       const data = await fetchStudentDashboard();
-      setDashboardState({ loading: false, data, error: null });
+
+      setDashboardState({
+        loading: false,
+        data,
+        error: null,
+      });
+
       setNotifications?.(data.notifications || []);
     } catch (err) {
       setDashboardState({
         loading: false,
         data: null,
-        error: err.message || 'Could not retrieve student dashboard metrics.',
+        error:
+          err.message ||
+          'Could not retrieve student dashboard metrics.',
       });
     }
   }, [setNotifications]);
 
   useEffect(() => {
     loadDashboard();
+
     return () => setNotifications?.([]);
   }, [loadDashboard, setNotifications]);
 
   const { loading, data, error } = dashboardState;
+
   const stats = data?.stats;
   const upcomingEvents = data?.upcomingEvents || [];
   const recentActivity = data?.recentActivity || [];
-  const firstName = user?.fullName?.split(/\s+/)[0] || 'Student';
+
+  const firstName =
+    user?.fullName?.split(/\s+/)[0] || 'Student';
 
   const attendanceValue =
-    stats?.attendance?.rate !== null && stats?.attendance?.rate !== undefined
+    stats?.attendance?.rate !== null &&
+    stats?.attendance?.rate !== undefined
       ? `${stats.attendance.rate}%`
       : stats?.attendance?.attended ?? 0;
 
@@ -110,7 +133,10 @@ export default function DashboardPage() {
   return (
     <>
       {/* Welcome Hero Section */}
-      <section className="cosmic-hero" aria-label="Student welcome">
+      <section
+        className="cosmic-hero"
+        aria-label="Student welcome"
+      >
         <div className="cosmic-hero-content">
           <div className="cosmic-hero-badge">
             <Sparkles size={14} aria-hidden="true" />
@@ -120,19 +146,25 @@ export default function DashboardPage() {
           <h2>
             {getTimeGreeting()}, {user?.fullName || firstName}
           </h2>
+
           <p>
-            Track upcoming campus events, review your registrations, and access
-            your passes from one unified student workspace.
+            Track upcoming campus events, review your registrations,
+            and access your passes from one unified student workspace.
           </p>
 
           <div className="hero-meta-chips">
             <span className="hero-meta-chip">
               <Building2 size={14} aria-hidden="true" />
-              <span>{user?.collegeName || 'Campus Member'}</span>
+              <span>
+                {user?.collegeName || 'Campus Member'}
+              </span>
             </span>
+
             <span className="hero-meta-chip">
               <IdCard size={14} aria-hidden="true" />
-              <span>ID: {user?.studentId || '—'}</span>
+              <span>
+                ID: {user?.studentId || '—'}
+              </span>
             </span>
           </div>
         </div>
@@ -142,6 +174,7 @@ export default function DashboardPage() {
             <UserCircle size={16} aria-hidden="true" />
             <span>My Profile</span>
           </Link>
+
           <Link to="/events" className="btn-hero-solid">
             <Compass size={16} aria-hidden="true" />
             <span>Explore Events</span>
@@ -149,10 +182,19 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {error && <DashboardErrorBanner message={error} onRetry={loadDashboard} />}
+      {/* Dashboard Error */}
+      {error && (
+        <DashboardErrorBanner
+          message={error}
+          onRetry={loadDashboard}
+        />
+      )}
 
-      {/* Statistics Cards */}
-      <section className="stats-grid" aria-label="Student statistics">
+      {/* Student Summary Metrics */}
+      <section
+        className="stats-grid"
+        aria-label="Student summary metrics"
+      >
         <StatCard
           label="Upcoming Events"
           value={stats?.upcomingEvents ?? 0}
@@ -164,6 +206,7 @@ export default function DashboardPage() {
           icon={CalendarDays}
           loading={loading}
         />
+
         <StatCard
           label="My Registrations"
           value={stats?.myRegistrations ?? 0}
@@ -175,6 +218,7 @@ export default function DashboardPage() {
           icon={ClipboardCheck}
           loading={loading}
         />
+
         <StatCard
           label="My Passes"
           value={stats?.myPasses ?? 0}
@@ -186,6 +230,7 @@ export default function DashboardPage() {
           icon={Ticket}
           loading={loading}
         />
+
         <StatCard
           label="Attendance"
           value={attendanceValue}
@@ -195,18 +240,26 @@ export default function DashboardPage() {
         />
       </section>
 
-      {/* Upcoming Events + Quick Actions / Recent Activity */}
+      {/* Upcoming Events + Recent Activity */}
       <div className="dashboard-main-grid">
-        <section className="card" aria-labelledby="upcoming-events-heading">
+        <section
+          className="card"
+          aria-labelledby="upcoming-events-heading"
+        >
           <div className="card-header">
             <div>
-              <h3 id="upcoming-events-heading" className="card-title">
+              <h3
+                id="upcoming-events-heading"
+                className="card-title"
+              >
                 Upcoming Events
               </h3>
+
               <p className="card-subtitle">
                 Live published events fetched from MongoDB
               </p>
             </div>
+
             <Link to="/events" className="btn-secondary">
               <span>View All Events</span>
               <ArrowRight size={14} aria-hidden="true" />
@@ -216,10 +269,24 @@ export default function DashboardPage() {
           {loading ? (
             <div className="events-grid" aria-busy="true">
               {[1, 2].map((item) => (
-                <div key={item} className="event-card is-skeleton">
-                  <span className="skeleton-line" style={{ inlineSize: '36%' }} />
-                  <span className="skeleton-line" style={{ inlineSize: '75%' }} />
-                  <span className="skeleton-line" style={{ inlineSize: '55%' }} />
+                <div
+                  key={item}
+                  className="event-card is-skeleton"
+                >
+                  <span
+                    className="skeleton-line"
+                    style={{ inlineSize: '36%' }}
+                  />
+
+                  <span
+                    className="skeleton-line"
+                    style={{ inlineSize: '75%' }}
+                  />
+
+                  <span
+                    className="skeleton-line"
+                    style={{ inlineSize: '55%' }}
+                  />
                 </div>
               ))}
             </div>
@@ -234,35 +301,56 @@ export default function DashboardPage() {
           ) : (
             <div className="events-grid">
               {upcomingEvents.map((event) => (
-                <article key={event.id} className="event-card">
+                <article
+                  key={event.id}
+                  className="event-card"
+                >
                   <div className="event-card-top">
-                    <span className="event-category-pill">{event.category}</span>
+                    <span className="event-category-pill">
+                      {event.category}
+                    </span>
+
                     <span className="event-date-tag">
                       {formatEventDate(event.date)}
                     </span>
                   </div>
 
-                  <h4 className="event-card-title">{event.title}</h4>
+                  <h4 className="event-card-title">
+                    {event.title}
+                  </h4>
 
                   {event.description && (
-                    <p className="event-card-desc">{event.description}</p>
+                    <p className="event-card-desc">
+                      {event.description}
+                    </p>
                   )}
 
                   <div className="event-card-meta">
                     <span>
                       <MapPin size={13} aria-hidden="true" />
-                      <span>{event.venue || 'Campus Venue'}</span>
+                      <span>
+                        {event.venue || 'Campus Venue'}
+                      </span>
                     </span>
+
                     {event.date && (
                       <span>
-                        <CalendarDays size={13} aria-hidden="true" />
-                        <span>{formatEventTime(event.date)}</span>
+                        <CalendarDays
+                          size={13}
+                          aria-hidden="true"
+                        />
+                        <span>
+                          {formatEventTime(event.date)}
+                        </span>
                       </span>
                     )}
+
                     {event.capacity ? (
                       <span>
                         <Users size={13} aria-hidden="true" />
-                        <span>{event.capacity} seats</span>
+                        <span>
+                          {event.capacity} seats
+                        </span>
                       </span>
                     ) : null}
                   </div>
@@ -282,6 +370,7 @@ export default function DashboardPage() {
         />
       </div>
 
+      {/* Quick Actions */}
       <QuickActionsCard
         title="Quick Actions"
         subtitle="Jump directly to key student modules"
