@@ -6,14 +6,14 @@ export default function RegistrationsPage() {
   return (
     <>
       <PageHeader
-        badge="Student Panel • Registrations"
+        badge="Student Panel • My Registrations"
         title="My Event Registrations"
-        description="Review your submitted registrations, confirmation status, and payment or approval updates."
+        description="Review your submitted registrations, confirmation status, and approval updates."
       />
       <ComingSoonCard
         icon={ClipboardCheck}
         title="Registration Tracker"
-        description="Once student authentication is active in Phase 1, your registered solo and team events will appear here."
+        description="Your registered solo and team events, waitlists, and confirmation updates will appear here once event registration opens in an upcoming phase."
         targetPhase="Upcoming Feature Phase"
         endpointHint="GET /api/registrations/my"
       />

@@ -1,9 +1,20 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LogOut, Sparkles, X } from 'lucide-react';
+import {
+  LogOut,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Sparkles,
+  X,
+} from 'lucide-react';
 import { getNavItemsForRole } from '../../config/navigation';
 import { useAuth } from '../../context/AuthContext';
 
-export default function Sidebar({ isOpen, onClose }) {
+export default function Sidebar({
+  isOpen,
+  isCollapsed,
+  onClose,
+  onToggleCollapse,
+}) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -26,7 +37,9 @@ export default function Sidebar({ isOpen, onClose }) {
       />
       <aside
         id="eventhub-sidebar"
-        className={`sidebar ${isOpen ? 'is-open' : ''}`}
+        className={`sidebar ${isOpen ? 'is-open' : ''} ${
+          isCollapsed ? 'is-collapsed' : ''
+        }`}
         aria-label={`${sectionLabel} Navigation`}
       >
         <div className="sidebar-brand">
@@ -34,11 +47,24 @@ export default function Sidebar({ isOpen, onClose }) {
             <div className="brand-logo" aria-hidden="true">
               <Sparkles size={20} />
             </div>
-            <div>
-              <div className="brand-title font-display">EventHub</div>
-              <div className="brand-subtitle">{panelTitle}</div>
-            </div>
+            {!isCollapsed && (
+              <div className="brand-text">
+                <div className="brand-title font-display">EventHub</div>
+                <div className="brand-subtitle">{panelTitle}</div>
+              </div>
+            )}
           </div>
+
+          <button
+            type="button"
+            className="sidebar-collapse-btn"
+            onClick={onToggleCollapse}
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-expanded={!isCollapsed}
+            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {isCollapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
+          </button>
 
           <button
             type="button"
@@ -50,7 +76,9 @@ export default function Sidebar({ isOpen, onClose }) {
           </button>
         </div>
 
-        <div className="sidebar-section-label">{sectionLabel}</div>
+        {!isCollapsed && (
+          <div className="sidebar-section-label">{sectionLabel}</div>
+        )}
 
         <nav className="sidebar-nav">
           {navItems.map((item) => {
@@ -61,29 +89,40 @@ export default function Sidebar({ isOpen, onClose }) {
                 to={item.path}
                 end={item.path === '/' || item.path === '/admin'}
                 onClick={onClose}
+                title={isCollapsed ? item.label : undefined}
+                aria-label={isCollapsed ? item.label : undefined}
                 className={({ isActive }) =>
                   `sidebar-link ${isActive ? 'is-active' : ''}`
                 }
               >
-                <Icon size={18} aria-hidden="true" />
-                <span>{item.label}</span>
+                <Icon size={18} aria-hidden="true" className="sidebar-link-icon" />
+                {!isCollapsed && <span className="sidebar-link-label">{item.label}</span>}
               </NavLink>
             );
           })}
         </nav>
 
         <div className="sidebar-footer">
-          <div className="sidebar-footer-title">{user?.fullName || 'Authenticated User'}</div>
-          <p className="sidebar-footer-note">
-            {user?.collegeName} • <span style={{ textTransform: 'capitalize' }}>{user?.role}</span>
-          </p>
+          {!isCollapsed && (
+            <>
+              <div className="sidebar-footer-title">
+                {user?.fullName || 'Authenticated User'}
+              </div>
+              <p className="sidebar-footer-note">
+                {user?.collegeName} •{' '}
+                <span style={{ textTransform: 'capitalize' }}>{user?.role}</span>
+              </p>
+            </>
+          )}
           <button
             type="button"
             className="sidebar-logout-btn"
             onClick={handleLogout}
+            title={isCollapsed ? 'Log Out' : undefined}
+            aria-label="Log Out"
           >
             <LogOut size={15} aria-hidden="true" />
-            <span>Log Out</span>
+            {!isCollapsed && <span>Log Out</span>}
           </button>
         </div>
       </aside>

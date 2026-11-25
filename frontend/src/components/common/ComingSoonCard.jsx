@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 export default function ComingSoonCard({
   icon: Icon,
@@ -7,7 +8,11 @@ export default function ComingSoonCard({
   description,
   targetPhase = 'Upcoming Phase',
   endpointHint,
+  backTo,
 }) {
+  const { user } = useAuth();
+  const dashboardPath = backTo || (user?.role === 'admin' ? '/admin' : '/');
+
   return (
     <section className="card placeholder-panel">
       {Icon && (
@@ -32,7 +37,7 @@ export default function ComingSoonCard({
         )}
       </div>
 
-      <Link to="/" className="btn-secondary">
+      <Link to={dashboardPath} className="btn-secondary">
         <ArrowLeft size={15} />
         <span>Back to Dashboard</span>
       </Link>
