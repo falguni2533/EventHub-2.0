@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AlertCircle,
   BadgeCheck,
   Building,
   CalendarClock,
+  Camera,
   CheckCircle2,
   Edit3,
   Eye,
@@ -27,6 +28,7 @@ import {
   updateProfilePicture,
 } from '../../services/profileService';
 import { formatEventDate } from '../../utils/dateFormat';
+import { processProfileImageFile } from '../../utils/imageUpload';
 
 const PASSWORD_PATTERN = '(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}';
 
@@ -56,6 +58,7 @@ export default function AdminProfileView() {
   const [loggingOut, setLoggingOut] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const settingsFileInputRef = useRef(null);
 
   useEffect(() => {
     setProfileForm({
@@ -449,6 +452,36 @@ export default function AdminProfileView() {
             >
               <KeyRound size={15} aria-hidden="true" />
               <span>{showPasswordForm ? 'Close Password Form' : 'Change Password'}</span>
+            </button>
+
+            <input
+              ref={settingsFileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              className="visually-hidden"
+              aria-label="Choose profile picture file"
+              disabled={savingAvatar}
+              onChange={async (event) => {
+                const file = event.target.files?.[0];
+                event.target.value = '';
+                if (!file) return;
+                clearFeedback();
+                try {
+                  const dataUrl = await processProfileImageFile(file);
+                  await handleAvatarUpload(dataUrl);
+                } catch (err) {
+                  setErrorMessage(err.message || 'Unable to update profile picture.');
+                }
+              }}
+            />
+            <button
+              type="button"
+              className="btn-secondary"
+              disabled={savingAvatar}
+              onClick={() => settingsFileInputRef.current?.click()}
+            >
+              <Camera size={15} aria-hidden="true" />
+              <span>{savingAvatar ? 'Updating Photo...' : 'Update Profile Picture'}</span>
             </button>
 
             <button
