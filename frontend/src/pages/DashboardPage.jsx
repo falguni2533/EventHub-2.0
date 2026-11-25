@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import {
   ArrowRight,
+  Award,
   Building2,
   CalendarDays,
   ClipboardCheck,
@@ -51,6 +52,12 @@ const STUDENT_QUICK_ACTIONS = [
     hint: 'Digital QR entry passes',
     to: '/passes',
     icon: Ticket,
+  },
+  {
+    label: 'My Certificates',
+    hint: 'Verified PDF credentials',
+    to: '/certificates',
+    icon: Award,
   },
   {
     label: 'My Team',

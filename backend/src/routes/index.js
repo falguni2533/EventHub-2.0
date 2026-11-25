@@ -2,6 +2,7 @@ import { Router } from 'express';
 import healthRoutes from './healthRoutes.js';
 import authRoutes from './authRoutes.js';
 import profileRoutes from './profileRoutes.js';
+import certificateRoutes from './certificateRoutes.js';
 import { adminRouter, studentRouter } from './dashboardRoutes.js';
 
 const router = Router();
@@ -16,6 +17,7 @@ router.get('/', (req, res) => {
       health: '/api/health',
       auth: '/api/auth',
       profile: '/api/profile',
+      certificates: '/api/certificates',
       studentDashboard: '/api/student/dashboard',
       adminDashboard: '/api/admin/dashboard',
     },
@@ -25,6 +27,7 @@ router.get('/', (req, res) => {
 router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
 router.use('/profile', profileRoutes);
+router.use('/certificates', certificateRoutes);
 router.use('/student', studentRouter);
 router.use('/admin', adminRouter);
 

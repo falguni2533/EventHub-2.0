@@ -1,9 +1,11 @@
 import {
+  Award,
   LayoutDashboard,
   Compass,
   ClipboardCheck,
   Ticket,
   ScanLine,
+  ShieldCheck,
   Users,
   UserCircle,
   CalendarCog,
@@ -40,6 +42,13 @@ export const STUDENT_NAV_ITEMS = [
     path: '/passes',
     icon: Ticket,
     description: 'Access your digital QR entry passes for registered events.',
+  },
+  {
+    id: 'certificates',
+    label: 'My Certificates',
+    path: '/certificates',
+    icon: Award,
+    description: 'View and download verified certificates from attended events.',
   },
   {
     id: 'attendance',
@@ -99,6 +108,20 @@ export const ADMIN_NAV_ITEMS = [
     path: '/admin/attendance',
     icon: ScanLine,
     description: 'Track and verify event check-in attendance logs.',
+  },
+  {
+    id: 'admin-verify',
+    label: 'Verify QR / ID',
+    path: '/admin/verify',
+    icon: ShieldCheck,
+    description: 'Verify student event passes for check-in or inspect certificate validity.',
+  },
+  {
+    id: 'admin-certificates',
+    label: 'Manage Certificates',
+    path: '/admin/certificates',
+    icon: Award,
+    description: 'Issue, preview, and revoke participant certificates.',
   },
   {
     id: 'admin-reports',

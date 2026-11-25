@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import {
+  Award,
   Bell,
   Building2,
   CalendarCog,
@@ -42,6 +43,18 @@ const ADMIN_QUICK_ACTIONS = [
     hint: 'Check-ins & verification',
     to: '/admin/attendance',
     icon: ScanLine,
+  },
+  {
+    label: 'Verify QR / ID',
+    hint: 'Pass & certificate checks',
+    to: '/admin/verify',
+    icon: ShieldCheck,
+  },
+  {
+    label: 'Manage Certificates',
+    hint: 'Issue & revoke credentials',
+    to: '/admin/certificates',
+    icon: Award,
   },
   {
     label: 'View Students',

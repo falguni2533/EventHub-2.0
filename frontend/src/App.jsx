@@ -4,7 +4,6 @@ import {
   CalendarCog,
   ClipboardList,
   GraduationCap,
-  ScanLine,
 } from 'lucide-react';
 import DashboardLayout from './components/layout/DashboardLayout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -18,8 +17,12 @@ import MyPassesPage from './pages/MyPassesPage';
 import MyTeamPage from './pages/MyTeamPage';
 import AttendancePage from './pages/AttendancePage';
 import MyProfilePage from './pages/MyProfilePage';
+import MyCertificatesPage from './pages/certificates/MyCertificatesPage';
+import VerifyCertificatePage from './pages/certificates/VerifyCertificatePage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminModulePlaceholderPage from './pages/admin/AdminModulePlaceholderPage';
+import ManageCertificatesPage from './pages/admin/ManageCertificatesPage';
+import AttendanceVerifyPage from './pages/admin/AttendanceVerifyPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import NotFoundPage from './pages/NotFoundPage';
 
@@ -31,6 +34,10 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
       </Route>
+
+      {/* Public Certificate Verification Portal */}
+      <Route path="/verify" element={<VerifyCertificatePage />} />
+      <Route path="/verify/:certificateId" element={<VerifyCertificatePage />} />
 
       {/* Role Mismatch Notice */}
       <Route element={<ProtectedRoute />}>
@@ -44,6 +51,7 @@ export default function App() {
           <Route path="events" element={<EventsPage />} />
           <Route path="registrations" element={<RegistrationsPage />} />
           <Route path="passes" element={<MyPassesPage />} />
+          <Route path="certificates" element={<MyCertificatesPage />} />
           <Route path="team" element={<MyTeamPage />} />
           <Route path="attendance" element={<AttendancePage />} />
           <Route path="profile" element={<MyProfilePage />} />
@@ -97,20 +105,9 @@ export default function App() {
               />
             }
           />
-          <Route
-            path="attendance"
-            element={
-              <AdminModulePlaceholderPage
-                badge="Admin Panel • Attendance"
-                title="Attendance Control"
-                description="Scan QR passes and manage real-time check-ins at event venues."
-                icon={ScanLine}
-                cardTitle="QR Check-in Scanner & Logs"
-                cardDescription="Live attendance verification, check-in desks, and participation logs will be implemented in an upcoming phase."
-                endpointHint="/api/admin/attendance"
-              />
-            }
-          />
+          <Route path="attendance" element={<AttendanceVerifyPage />} />
+          <Route path="verify" element={<AttendanceVerifyPage />} />
+          <Route path="certificates" element={<ManageCertificatesPage />} />
           <Route
             path="reports"
             element={
