@@ -10,7 +10,7 @@ router.get('/', (req, res) => {
     success: true,
     message: 'Welcome to the EventHub API',
     version: '1.0.0',
-    phase: 1,
+    phase: 2,
     endpoints: {
       health: '/api/health',
       auth: '/api/auth',
