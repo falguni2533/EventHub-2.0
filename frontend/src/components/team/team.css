@@ -1,0 +1,77 @@
+/* Team component styles */
+
+/* Card */
+.team-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.team-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+}
+.team-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.5rem;
+}
+.team-name {
+  margin: 0.3rem 0;
+  font-weight: 600;
+}
+.team-interests {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Recommendation grid */
+.team-reco-section {
+  margin: 2rem 0;
+}
+.team-reco-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+/* Modal */
+.team-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.team-modal {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  width: 90%;
+  max-width: 400px;
+  padding: 1.5rem;
+  position: relative;
+}
+.team-modal-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.team-modal-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 1rem;
+  display: block;
+}
