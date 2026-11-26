@@ -1,11 +1,9 @@
 import MyProfilePage from './pages/MyProfilePage';
 import { Route, Routes } from 'react-router-dom';
 import {
-  BarChart3,
   CalendarCog,
   ClipboardList,
   GraduationCap,
-  ScanLine,
 } from 'lucide-react';
 import DashboardLayout from './components/layout/DashboardLayout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -21,6 +19,10 @@ import AttendancePage from './pages/AttendancePage';
 import { Toaster } from "./utils/toast";
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminModulePlaceholderPage from './pages/admin/AdminModulePlaceholderPage';
+import ManageCertificatesPage from './pages/admin/ManageCertificatesPage';
+import AdminAttendancePage from './pages/admin/AdminAttendancePage';
+import AttendanceVerifyPage from './pages/admin/AttendanceVerifyPage';
+import FeedbackAnalyzerPage from './pages/admin/FeedbackAnalyzerPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import NotFoundPage from './pages/NotFoundPage';
 
@@ -32,6 +34,10 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
       </Route>
+
+      {/* Public Certificate Verification Portal */}
+      <Route path="/verify" element={<VerifyCertificatePage />} />
+      <Route path="/verify/:certificateId" element={<VerifyCertificatePage />} />
 
       {/* Role Mismatch Notice */}
       <Route element={<ProtectedRoute />}>
@@ -98,34 +104,14 @@ export default function App() {
               />
             }
           />
-          <Route
-            path="attendance"
-            element={
-              <AdminModulePlaceholderPage
-                badge="Admin Panel • Attendance"
-                title="Attendance Control"
-                description="Scan QR passes and manage real-time check-ins at event venues."
-                icon={ScanLine}
-                cardTitle="QR Check-in Scanner & Logs"
-                cardDescription="Live attendance verification, check-in desks, and participation logs will be implemented in an upcoming phase."
-                endpointHint="/api/admin/attendance"
-              />
-            }
-          />
+          <Route path="attendance" element={<AdminAttendancePage />} />
+          <Route path="verify" element={<AttendanceVerifyPage />} />
+          <Route path="certificates" element={<ManageCertificatesPage />} />
           <Route
             path="reports"
-            element={
-              <AdminModulePlaceholderPage
-                badge="Admin Panel • Reports & Analytics"
-                title="Reports & Analytics"
-                description="Monitor event turnout, category performance, and campus engagement."
-                icon={BarChart3}
-                cardTitle="Platform Analytics Suite"
-                cardDescription="Interactive turnout reports, CSV exports, and attendance breakdowns will become available once event activity accumulates."
-                endpointHint="/api/admin/reports"
-              />
-            }
+            element={<Navigate to="/admin/feedback-analyzer" replace />}
           />
+          <Route path="feedback-analyzer" element={<FeedbackAnalyzerPage />} />
           <Route path="profile" element={<MyProfilePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { generatePassCode, generatePassToken } from '../utils/generatePassToken.js';
 
 const registrationSchema = new mongoose.Schema(
   {
@@ -25,6 +26,11 @@ const registrationSchema = new mongoose.Schema(
       trim: true,
       default: null,
     },
+    passToken: {
+      type: String,
+      trim: true,
+      default: undefined,
+    },
     passStatus: {
       type: String,
       enum: ['none', 'active', 'used', 'revoked'],
@@ -39,9 +45,24 @@ const registrationSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    checkedInBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
     registeredAt: {
       type: Date,
       default: Date.now,
+    },
+    isDemo: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    seedKey: {
+      type: String,
+      trim: true,
+      default: undefined,
     },
   },
   {
@@ -56,6 +77,25 @@ const registrationSchema = new mongoose.Schema(
 );
 
 registrationSchema.index({ student: 1, event: 1 }, { unique: true });
+registrationSchema.index({ passToken: 1 }, { unique: true, sparse: true });
+registrationSchema.index({ seedKey: 1 }, { unique: true, sparse: true });
+
+registrationSchema.pre('save', function ensurePassFields(next) {
+  if (this.status === 'confirmed') {
+    if (!this.passToken) {
+      this.passToken = generatePassToken();
+    }
+    if (!this.passCode) {
+      this.passCode = generatePassCode();
+    }
+    if (this.passStatus === 'none') {
+      this.passStatus = 'active';
+    }
+  } else if (this.status === 'cancelled' && this.passStatus === 'active') {
+    this.passStatus = 'revoked';
+  }
+  next();
+});
 
 const Registration = mongoose.model('Registration', registrationSchema);
 

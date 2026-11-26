@@ -2,9 +2,14 @@ import { Router } from 'express';
 import healthRoutes from './healthRoutes.js';
 import authRoutes from './authRoutes.js';
 import profileRoutes from './profileRoutes.js';
+import certificateRoutes from './certificateRoutes.js';
+import analyzeRoutes from './analyzeRoutes.js';
 import recommendationRoutes from './recommendationRoutes.js';
 import eventRoutes from './eventRoutes.js';
 import { adminRouter, studentRouter } from './dashboardRoutes.js';
+import { protect } from '../middleware/authMiddleware.js';
+import { authorizeRoles } from '../middleware/roleMiddleware.js';
+import { getStudentAttendance } from '../controllers/attendanceController.js';
 
 const router = Router();
 
@@ -18,6 +23,9 @@ router.get('/', (req, res) => {
       health: '/api/health',
       auth: '/api/auth',
       profile: '/api/profile',
+      certificates: '/api/certificates',
+      analyze: '/api/analyze',
+      recommendations: '/api/recommendations',
       studentDashboard: '/api/student/dashboard',
       adminDashboard: '/api/admin/dashboard',
       team: '/api/student/team',

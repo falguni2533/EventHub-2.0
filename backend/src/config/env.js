@@ -1,10 +1,27 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envFilePath = path.resolve(__dirname, '../../.env');
+
+dotenv.config({ path: envFilePath });
 
 const parsePort = (value, fallback) => {
   const parsed = Number.parseInt(value, 10);
   return Number.isNaN(parsed) ? fallback : parsed;
+};
+
+/**
+ * Redacts embedded credentials from MongoDB URIs or error messages before logging.
+ */
+export const redactMongoCredentials = (text) => {
+  if (!text) return '';
+  return String(text).replace(
+    /(mongodb(?:\+srv)?:\/\/)([^:@/\s]+):([^@/\s]+)@/gi,
+    '$1<USER>:<REDACTED>@'
+  );
 };
 
 export const env = {
@@ -16,6 +33,9 @@ export const env = {
   jwtSecret: (process.env.JWT_SECRET || '').trim(),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   adminSetupKey: (process.env.ADMIN_SETUP_KEY || '').trim(),
+  geminiApiKey: (process.env.GEMINI_API_KEY || '').trim(),
+  openaiApiKey: (process.env.OPENAI_API_KEY || '').trim(),
+  allowLocalFallback: process.env.ALLOW_LOCAL_FALLBACK !== 'false',
 };
 
 const PLACEHOLDER_MARKERS = [

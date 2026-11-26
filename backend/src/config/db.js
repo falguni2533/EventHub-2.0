@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { env, isMongoUriConfigured } from './env.js';
+import { env, isMongoUriConfigured, redactMongoCredentials } from './env.js';
 
 const READY_STATE_LABELS = {
   0: 'disconnected',
@@ -8,14 +8,73 @@ const READY_STATE_LABELS = {
   3: 'disconnecting',
 };
 
+const RECONNECT_BASE_DELAY_MS = 2000;
+const RECONNECT_MAX_DELAY_MS = 30000;
+
 let listenersRegistered = false;
 let usingMemoryServer = false;
 let memoryServerInstance = null;
 let activeConnectionPromise = null;
 let intentionalDisconnect = false;
+let hasConnectedOnce = false;
+let reconnectTimer = null;
+let reconnectAttempt = 0;
 
 // Fail fast instead of buffering Mongoose queries for 10 seconds if disconnected
 mongoose.set('bufferCommands', false);
+
+const clearReconnectTimer = () => {
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+};
+
+const scheduleReconnect = () => {
+  if (
+    intentionalDisconnect ||
+    reconnectTimer ||
+    activeConnectionPromise ||
+    mongoose.connection.readyState !== 0
+  ) {
+    return;
+  }
+
+  const delayMs = Math.min(
+    RECONNECT_BASE_DELAY_MS * 2 ** reconnectAttempt,
+    RECONNECT_MAX_DELAY_MS
+  );
+  reconnectAttempt += 1;
+
+  console.warn(
+    `[MongoDB] Scheduling reconnect attempt #${reconnectAttempt} in ${Math.round(
+      delayMs / 1000
+    )}s...`
+  );
+
+  reconnectTimer = setTimeout(async () => {
+    reconnectTimer = null;
+    if (
+      intentionalDisconnect ||
+      mongoose.connection.readyState === 1 ||
+      mongoose.connection.readyState === 2
+    ) {
+      return;
+    }
+
+    try {
+      await connectDatabase();
+    } catch (error) {
+      console.error(
+        `[MongoDB] Reconnect attempt #${reconnectAttempt} failed:`,
+        redactMongoCredentials(error?.message || 'Unknown connection error')
+      );
+      scheduleReconnect();
+    }
+  }, delayMs);
+
+  reconnectTimer.unref?.();
+};
 
 const registerConnectionListeners = () => {
   if (listenersRegistered) return;
@@ -23,28 +82,55 @@ const registerConnectionListeners = () => {
 
   mongoose.connection.on('connected', () => {
     intentionalDisconnect = false;
+    hasConnectedOnce = true;
+    reconnectAttempt = 0;
+    clearReconnectTimer();
     console.log(
       `[MongoDB] Connected to database "${mongoose.connection.name}" on host "${mongoose.connection.host}"`
     );
   });
 
   mongoose.connection.on('reconnected', () => {
+    hasConnectedOnce = true;
+    reconnectAttempt = 0;
+    clearReconnectTimer();
     console.log(
       `[MongoDB] Reconnected to database "${mongoose.connection.name}"`
     );
   });
 
   mongoose.connection.on('error', (err) => {
-    console.error('[MongoDB] Connection error:', err.message);
+    console.error(
+      '[MongoDB] Connection error:',
+      redactMongoCredentials(err?.message || 'Unknown error')
+    );
   });
 
   mongoose.connection.on('disconnected', () => {
     if (intentionalDisconnect) {
       console.log('[MongoDB] Connection closed cleanly');
-    } else {
+      return;
+    }
+
+    if (hasConnectedOnce) {
+      hasConnectedOnce = false;
       console.warn('[MongoDB] Unexpectedly disconnected from MongoDB Atlas');
+      scheduleReconnect();
     }
   });
+};
+
+/**
+ * Identifies configuration or authentication errors that should not be retried blindly.
+ */
+export const isNonRetryableMongoError = (error) => {
+  if (!isMongoUriConfigured()) return true;
+  if (!error) return false;
+  if (error.code === 18 || error.code === 8000) return true;
+  if (error.codeName === 'AuthenticationFailed') return true;
+  if (error.name === 'MongoParseError') return true;
+  const msg = String(error.message || '');
+  return /authentication failed|bad auth|missing|malformed|invalid scheme/i.test(msg);
 };
 
 /**
@@ -91,9 +177,11 @@ export const connectDatabase = async () => {
  * Gracefully closes the Mongoose connection.
  */
 export const disconnectDatabase = async () => {
+  intentionalDisconnect = true;
+  hasConnectedOnce = false;
+  clearReconnectTimer();
   activeConnectionPromise = null;
   if (mongoose.connection.readyState !== 0) {
-    intentionalDisconnect = true;
     await mongoose.connection.close();
   }
 };

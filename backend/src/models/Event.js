@@ -47,9 +47,15 @@ const eventSchema = new mongoose.Schema(
       ref: 'User',
       default: null,
     },
-    requiredSkills: {
-      type: [String],
-      default: [],
+    isDemo: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    seedKey: {
+      type: String,
+      trim: true,
+      default: undefined,
     },
   },
   {
@@ -62,6 +68,8 @@ const eventSchema = new mongoose.Schema(
     },
   }
 );
+
+eventSchema.index({ seedKey: 1 }, { unique: true, sparse: true });
 
 const Event = mongoose.model('Event', eventSchema);
 
