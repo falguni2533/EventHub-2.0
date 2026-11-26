@@ -2,6 +2,7 @@ import { Router } from 'express';
 import healthRoutes from './healthRoutes.js';
 import authRoutes from './authRoutes.js';
 import profileRoutes from './profileRoutes.js';
+import recommendationRoutes from './recommendationRoutes.js';
 import { adminRouter, studentRouter } from './dashboardRoutes.js';
 
 const router = Router();
@@ -26,6 +27,7 @@ router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
 router.use('/profile', profileRoutes);
 router.use('/student', studentRouter);
-router.use('/admin', adminRouter);
+router.use('/recommendations', recommendationRoutes);
+
 
 export default router;
