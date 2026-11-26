@@ -166,15 +166,17 @@ export default function CertificatePreview({ certificate, onClose }) {
             <ExternalLink size={14} aria-hidden="true" />
             <span>Public Verification Page</span>
           </Link>
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={handleDownload}
-            disabled={downloading}
-          >
-            <Download size={14} aria-hidden="true" />
-            <span>{downloading ? 'Downloading...' : 'Download Official PDF'}</span>
-          </button>
+          {certificate.status !== 'revoked' && (
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={handleDownload}
+              disabled={downloading}
+            >
+              <Download size={14} aria-hidden="true" />
+              <span>{downloading ? 'Downloading...' : 'Download Official PDF'}</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

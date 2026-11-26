@@ -612,16 +612,18 @@ export default function AttendanceVerifyPage() {
                     <ExternalLink size={14} aria-hidden="true" />
                     <span>Open Public Verification Page</span>
                   </Link>
-                  <button
-                    type="button"
-                    className="btn-primary"
-                    onClick={() =>
-                      triggerCertificateDownload(certResult.data.certificateId)
-                    }
-                  >
-                    <Download size={14} aria-hidden="true" />
-                    <span>Download PDF</span>
-                  </button>
+                  {certResult.data.status !== 'revoked' && (
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      onClick={() =>
+                        triggerCertificateDownload(certResult.data.certificateId)
+                      }
+                    >
+                      <Download size={14} aria-hidden="true" />
+                      <span>Download PDF</span>
+                    </button>
+                  )}
                 </div>
               </div>
             )}

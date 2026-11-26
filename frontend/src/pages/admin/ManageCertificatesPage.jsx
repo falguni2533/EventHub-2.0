@@ -20,6 +20,7 @@ import CertificatePreview from '../../components/certificates/CertificatePreview
 import {
   generateEventCertificates,
   generateSingleCertificate,
+  getAllCertificates,
   getEventsWithParticipants,
   revokeCertificate,
   triggerCertificateDownload,
@@ -27,6 +28,8 @@ import {
 
 export default function ManageCertificatesPage() {
   const [events, setEvents] = useState([]);
+  const [historyCerts, setHistoryCerts] = useState([]);
+  const [historyFilter, setHistoryFilter] = useState('all');
   const [selectedEventId, setSelectedEventId] = useState('');
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -43,9 +46,13 @@ export default function ManageCertificatesPage() {
     try {
       setLoading(true);
       setLoadError(null);
-      const res = await getEventsWithParticipants();
-      const eventList = res?.data || [];
+      const [eventsRes, certsRes] = await Promise.all([
+        getEventsWithParticipants(),
+        getAllCertificates(),
+      ]);
+      const eventList = eventsRes?.data || [];
       setEvents(eventList);
+      setHistoryCerts(certsRes?.data || []);
       setSelectedEventId((prev) =>
         prev && eventList.some((e) => e.eventId === prev)
           ? prev
@@ -136,9 +143,16 @@ export default function ManageCertificatesPage() {
 
   const handleConfirmRevoke = async () => {
     if (!revokeModalData) return;
+    if (!revokeReason.trim()) {
+      setAlert({
+        type: 'error',
+        message: 'Please provide a mandatory revocation reason.',
+      });
+      return;
+    }
     try {
       setActionLoading(true);
-      await revokeCertificate(revokeModalData.certificateId, revokeReason);
+      await revokeCertificate(revokeModalData.certificateId, revokeReason.trim());
       setAlert({
         type: 'success',
         message: `Certificate ${revokeModalData.certificateId} has been officially revoked.`,
@@ -155,6 +169,10 @@ export default function ManageCertificatesPage() {
       setActionLoading(false);
     }
   };
+
+  const filteredHistoryCerts = historyCerts.filter((cert) =>
+    historyFilter === 'all' ? true : cert.status === historyFilter
+  );
 
   return (
     <>
@@ -370,17 +388,19 @@ export default function ManageCertificatesPage() {
                                 <Eye size={13} aria-hidden="true" />
                                 <span>Preview</span>
                               </button>
-                              <button
-                                type="button"
-                                className="btn-secondary"
-                                onClick={() =>
-                                  triggerCertificateDownload(p.certificate.certificateId)
-                                }
-                                title="Download PDF"
-                                aria-label={`Download ${p.certificate.certificateId}`}
-                              >
-                                <Download size={13} aria-hidden="true" />
-                              </button>
+                              {certStatus === 'valid' && (
+                                <button
+                                  type="button"
+                                  className="btn-secondary"
+                                  onClick={() =>
+                                    triggerCertificateDownload(p.certificate.certificateId)
+                                  }
+                                  title="Download PDF"
+                                  aria-label={`Download ${p.certificate.certificateId}`}
+                                >
+                                  <Download size={13} aria-hidden="true" />
+                                </button>
+                              )}
                             </>
                           )}
 
@@ -399,6 +419,135 @@ export default function ManageCertificatesPage() {
                     </tr>
                   );
                 })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      {/* Certificate Issuance & Revocation History */}
+      <section className="card" aria-label="Certificate issuance and revocation history">
+        <div className="card-header">
+          <div>
+            <h3 className="card-title">Certificate Issuance &amp; Revocation History</h3>
+            <p className="card-subtitle">
+              Audit trail of all issued and revoked credentials stored in MongoDB.
+            </p>
+          </div>
+          <div className="eh-filter-bar">
+            <select
+              className="form-input eh-select-compact"
+              value={historyFilter}
+              onChange={(e) => setHistoryFilter(e.target.value)}
+              aria-label="Filter certificate history by status"
+            >
+              <option value="all">All Credentials ({historyCerts.length})</option>
+              <option value="valid">
+                Valid ({historyCerts.filter((c) => c.status === 'valid').length})
+              </option>
+              <option value="revoked">
+                Revoked ({historyCerts.filter((c) => c.status === 'revoked').length})
+              </option>
+            </select>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="activity-skeleton-list" aria-busy="true">
+            {[1, 2].map((row) => (
+              <div key={row} className="activity-item is-skeleton">
+                <span className="skeleton-line" style={{ inlineSize: '100%' }} />
+              </div>
+            ))}
+          </div>
+        ) : filteredHistoryCerts.length === 0 ? (
+          <EmptyState
+            icon={Award}
+            title="No certificate history records"
+            description="Issued and revoked certificates across events will appear here."
+          />
+        ) : (
+          <div className="table-wrapper">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">Certificate ID</th>
+                  <th scope="col">Participant</th>
+                  <th scope="col">Event</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Audit Details</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredHistoryCerts.map((cert) => (
+                  <tr key={cert.certificateId}>
+                    <th scope="row">
+                      <code className="cert-id-code">{cert.certificateId}</code>
+                    </th>
+                    <td data-label="Participant">
+                      <div className="table-primary-text">{cert.participantName}</div>
+                      <div className="table-secondary-text">{cert.participantEmail}</div>
+                    </td>
+                    <td data-label="Event">
+                      <div className="table-primary-text">{cert.eventName}</div>
+                      <div className="table-secondary-text">
+                        Issued{' '}
+                        {cert.issueDate
+                          ? new Date(cert.issueDate).toLocaleDateString()
+                          : '—'}
+                      </div>
+                    </td>
+                    <td data-label="Status">
+                      <CertificateStatus status={cert.status} />
+                    </td>
+                    <td data-label="Audit Details">
+                      {cert.status === 'revoked' ? (
+                        <div>
+                          <div className="table-primary-text" style={{ color: '#b91c1c' }}>
+                            {cert.revocationReason || 'Revoked'}
+                          </div>
+                          <div className="table-secondary-text">
+                            {cert.revokedAt
+                              ? `Revoked ${new Date(cert.revokedAt).toLocaleDateString()}`
+                              : ''}
+                            {cert.revokedBy?.fullName
+                              ? ` • By ${cert.revokedBy.fullName}`
+                              : ''}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="table-secondary-text">
+                          {cert.issuedBy?.fullName
+                            ? `Issued by ${cert.issuedBy.fullName}`
+                            : 'Active in registry'}
+                        </div>
+                      )}
+                    </td>
+                    <td data-label="Actions">
+                      <div className="eh-table-actions">
+                        <button
+                          type="button"
+                          className="btn-secondary"
+                          onClick={() => setPreviewCert(cert)}
+                        >
+                          <Eye size={13} aria-hidden="true" />
+                          <span>View</span>
+                        </button>
+                        {cert.status === 'valid' && (
+                          <button
+                            type="button"
+                            className="btn-ghost-danger"
+                            onClick={() => setRevokeModalData(cert)}
+                          >
+                            <Ban size={13} aria-hidden="true" />
+                            <span>Revoke</span>
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -514,11 +663,12 @@ export default function ManageCertificatesPage() {
               </div>
               <div className="form-field">
                 <label htmlFor="revoke-reason-input" className="form-label">
-                  Revocation Reason (Optional)
+                  Revocation Reason (Required)
                 </label>
                 <textarea
                   id="revoke-reason-input"
                   rows={3}
+                  required
                   className="form-input"
                   placeholder="e.g. Attendance record dispute or post-event audit violation."
                   value={revokeReason}
@@ -538,7 +688,7 @@ export default function ManageCertificatesPage() {
                 type="button"
                 className="btn-ghost-danger"
                 onClick={handleConfirmRevoke}
-                disabled={actionLoading}
+                disabled={actionLoading || !revokeReason.trim()}
               >
                 {actionLoading ? 'Revoking...' : 'Confirm Revocation'}
               </button>

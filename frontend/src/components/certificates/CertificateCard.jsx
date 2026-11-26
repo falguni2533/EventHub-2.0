@@ -61,18 +61,34 @@ export default function CertificateCard({ certificate, onPreview }) {
           <div className="cert-meta-row">
             <CertificateStatus status={certificate.status} />
           </div>
+          {certificate.status === 'revoked' && certificate.revocationReason && (
+            <div className="cert-meta-row" style={{ color: '#b91c1c' }}>
+              <span>Reason: {certificate.revocationReason}</span>
+            </div>
+          )}
         </div>
 
         <div className="cert-card-actions">
-          <button
-            type="button"
-            className="btn-primary cert-action-grow"
-            onClick={handleDownload}
-            disabled={downloading}
-          >
-            <Download size={14} aria-hidden="true" />
-            <span>{downloading ? 'Downloading...' : 'Download PDF'}</span>
-          </button>
+          {certificate.status !== 'revoked' ? (
+            <button
+              type="button"
+              className="btn-primary cert-action-grow"
+              onClick={handleDownload}
+              disabled={downloading}
+            >
+              <Download size={14} aria-hidden="true" />
+              <span>{downloading ? 'Downloading...' : 'Download PDF'}</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="btn-ghost-danger cert-action-grow"
+              disabled
+              title="Revoked certificates cannot be downloaded"
+            >
+              <span>Revoked / Void</span>
+            </button>
+          )}
 
           <button
             type="button"
