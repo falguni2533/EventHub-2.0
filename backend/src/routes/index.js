@@ -3,6 +3,7 @@ import healthRoutes from './healthRoutes.js';
 import authRoutes from './authRoutes.js';
 import profileRoutes from './profileRoutes.js';
 import recommendationRoutes from './recommendationRoutes.js';
+import eventRoutes from './eventRoutes.js';
 import { adminRouter, studentRouter } from './dashboardRoutes.js';
 
 const router = Router();
@@ -19,6 +20,7 @@ router.get('/', (req, res) => {
       profile: '/api/profile',
       studentDashboard: '/api/student/dashboard',
       adminDashboard: '/api/admin/dashboard',
+      team: '/api/student/team',
     },
   });
 });
@@ -26,8 +28,9 @@ router.get('/', (req, res) => {
 router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
 router.use('/profile', profileRoutes);
-router.use('/student', studentRouter);
+router.use('/events', eventRoutes);
 router.use('/recommendations', recommendationRoutes);
-
+router.use('/student', studentRouter);
+router.use('/admin', adminRouter);
 
 export default router;

@@ -1,3 +1,4 @@
+import MyProfilePage from './pages/MyProfilePage';
 import { Route, Routes } from 'react-router-dom';
 import {
   BarChart3,
@@ -15,9 +16,9 @@ import DashboardPage from './pages/DashboardPage';
 import EventsPage from './pages/EventsPage';
 import RegistrationsPage from './pages/RegistrationsPage';
 import MyPassesPage from './pages/MyPassesPage';
-import MyTeamPage from './pages/MyTeamPage';
+import TeamPage from './pages/TeamPage';
 import AttendancePage from './pages/AttendancePage';
-import MyProfilePage from './pages/MyProfilePage';
+import { Toaster } from "./utils/toast";
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminModulePlaceholderPage from './pages/admin/AdminModulePlaceholderPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
@@ -44,7 +45,7 @@ export default function App() {
           <Route path="events" element={<EventsPage />} />
           <Route path="registrations" element={<RegistrationsPage />} />
           <Route path="passes" element={<MyPassesPage />} />
-          <Route path="team" element={<MyTeamPage />} />
+          <Route path="team" element={<TeamPage />} />
           <Route path="attendance" element={<AttendancePage />} />
           <Route path="profile" element={<MyProfilePage />} />
           <Route path="*" element={<NotFoundPage />} />

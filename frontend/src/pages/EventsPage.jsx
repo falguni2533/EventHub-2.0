@@ -1,6 +1,7 @@
 import { getUpcomingEvents } from '../services/eventService';
 import { fetchMyProfile } from '../services/profileService';
 import { getRecommendedEvents } from '../services/recommendationService';
+import { RecommendedCarousel } from '../components/events/RecommendedCarousel';
 import { useEffect, useState } from 'react';
 import PageHeader from '../components/common/PageHeader';
 import EventFilters from '../components/events/EventFilters';

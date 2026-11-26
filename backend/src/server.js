@@ -1,6 +1,10 @@
+import dns from 'node:dns';
 import app from './app.js';
 import { env, validateEnv } from './config/env.js';
 import { connectDatabase, disconnectDatabase } from './config/db.js';
+
+// Use public DNS servers to fix "querySrv ECONNREFUSED"
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 let server;
 

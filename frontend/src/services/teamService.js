@@ -1,4 +1,57 @@
 import apiClient from './apiClient';
+
+// All endpoints are under /student/team (protected)
+export const fetchTeamOverview = async () => {
+  const resp = await apiClient.get('/student/team');
+  return resp.data.data; // {teams, looking, incoming, outgoing, meId}
+};
+
+export const fetchTeamEvents = async () => {
+  const resp = await apiClient.get('/student/team/events');
+  // Backend returns { success:true, data:[{_id,title,category,date}] }
+  return resp.data?.data ?? [];
+};
+
+export const createTeamApi = async (payload) => {
+  const resp = await apiClient.post('/student/team', payload);
+  return resp.data.data;
+};
+
+export const setLookingApi = async (payload) => {
+  const resp = await apiClient.post('/student/team/looking', payload);
+  return resp.data.data;
+};
+
+export const clearLookingApi = async (eventId) => {
+  const resp = await apiClient.delete(`/student/team/looking/${eventId}`);
+  return resp.data.data;
+};
+
+export const fetchRecommendedTeams = async ({ eventId }) => {
+  const resp = await apiClient.get('/student/team/recommended-teams', { params: { eventId } });
+  return resp.data.data; // ranked list
+};
+
+export const respondRequestApi = async (requestId, { action }) => {
+  const resp = await apiClient.patch(`/student/team/requests/${requestId}`, { action });
+  return resp.data.data;
+};
+
+export const fetchTeamRecommendations = async (teamId) => {
+  const resp = await apiClient.get(`/student/team/${teamId}/recommendations`);
+  return resp.data.data;
+};
+
+export const sendInviteApi = async (teamId, { studentId }) => {
+  const resp = await apiClient.post(`/student/team/${teamId}/invite`, { studentId });
+  return resp.data.data;
+};
+
+export const sendJoinRequestApi = async (teamId) => {
+  const resp = await apiClient.post(`/student/team/${teamId}/join`);
+  return resp.data.data;
+};
+
 import { mockUsers } from '../data/mockUsers';
 
 // Mock team for development (when backend is not running)

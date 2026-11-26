@@ -6,6 +6,8 @@ import {
 /**
  * GET /api/student/dashboard
  */
+import Event from '../models/Event.js';
+
 export const getStudentDashboard = async (req, res, next) => {
   try {
     const data = await getStudentDashboardData(req.user);

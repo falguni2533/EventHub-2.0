@@ -1,5 +1,5 @@
 import User from '../models/User.js';
-import Event from '../models/Event.js';
+import AppEvent from '../models/Event.js';
 import Registration from '../models/Registration.js';
 
 const STUDENT_SECTIONS = [
@@ -35,12 +35,12 @@ export const getStudentDashboardData = async (user) => {
     totalMarkedCount,
     recentRegistrations,
   ] = await Promise.all([
-    Event.find({ status: 'published', date: { $gte: now } })
+    AppEvent.find({ status: 'published', date: { $gte: now } })
       .sort({ date: 1 })
       .limit(4)
       .select('title description category date venue capacity status')
       .lean(),
-    Event.countDocuments({ status: 'published', date: { $gte: now } }),
+    AppEvent.countDocuments({ status: 'published', date: { $gte: now } }),
     Registration.countDocuments({
       student: studentId,
       status: { $ne: 'cancelled' },

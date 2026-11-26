@@ -63,28 +63,15 @@ export const connectDatabase = async () => {
     return activeConnectionPromise;
   }
 
-  // Try real MongoDB first
+  // Connect to real MongoDB if URI is configured; otherwise start in‑memory server
   if (isMongoUriConfigured()) {
-    console.log(`[MongoDB] Connecting to Atlas database "${env.mongoDbName}"...`);
-    activeConnectionPromise = mongoose
-      .connect(env.mongoUri, {
-        dbName: env.mongoDbName,
-        serverSelectionTimeoutMS: 10000,
-        socketTimeoutMS: 45000,
-      })
-      .catch((error) => {
-        activeConnectionPromise = null;
-        console.warn('[MongoDB] Real DB connection failed, falling back to in‑memory server:', error.message);
-        return null;
-      });
-    const conn = await activeConnectionPromise;
-    if (conn) {
-      activeConnectionPromise = null;
-      return conn;
-    }
+    console.log('[MongoDB] Connecting to configured URI...');
+    const conn = await mongoose.connect(env.mongoUri, { dbName: env.mongoDbName });
+    console.log('[MongoDB] Connected to real MongoDB.');
+    return conn;
   }
 
-  // Fallback to mongodb‑memory‑server
+  // Fallback: start in‑memory server for development/testing
   console.log('[MongoDB] Starting in‑memory server...');
   const { MongoMemoryServer } = await import('mongodb-memory-server');
   const memSrv = await MongoMemoryServer.create();
@@ -96,6 +83,8 @@ export const connectDatabase = async () => {
   activeConnectionPromise = null;
   console.log('[MongoDB] In‑memory server ready.');
   return memConn;
+
+
 };
 
 /**
