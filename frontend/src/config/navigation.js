@@ -1,15 +1,17 @@
 import {
+  Award,
   LayoutDashboard,
   Compass,
   ClipboardCheck,
   Ticket,
   ScanLine,
+  ShieldCheck,
   Users,
   UserCircle,
   CalendarCog,
   ClipboardList,
   GraduationCap,
-  BarChart3,
+  MessageSquareText,
 } from 'lucide-react';
 
 export const STUDENT_NAV_ITEMS = [
@@ -40,6 +42,13 @@ export const STUDENT_NAV_ITEMS = [
     path: '/passes',
     icon: Ticket,
     description: 'Access your digital QR entry passes for registered events.',
+  },
+  {
+    id: 'certificates',
+    label: 'My Certificates',
+    path: '/certificates',
+    icon: Award,
+    description: 'View and download verified certificates from attended events.',
   },
   {
     id: 'attendance',
@@ -101,11 +110,25 @@ export const ADMIN_NAV_ITEMS = [
     description: 'Track and verify event check-in attendance logs.',
   },
   {
-    id: 'admin-reports',
-    label: 'Reports/Analytics',
-    path: '/admin/reports',
-    icon: BarChart3,
-    description: 'View participation trends, turnout metrics, and event analytics.',
+    id: 'admin-verify',
+    label: 'Verify QR / ID',
+    path: '/admin/verify',
+    icon: ShieldCheck,
+    description: 'Verify student event passes for check-in or inspect certificate validity.',
+  },
+  {
+    id: 'admin-certificates',
+    label: 'Manage Certificates',
+    path: '/admin/certificates',
+    icon: Award,
+    description: 'Issue, preview, and revoke participant certificates.',
+  },
+  {
+    id: 'admin-feedback-analyzer',
+    label: 'Reports & Analysis',
+    path: '/admin/feedback-analyzer',
+    icon: MessageSquareText,
+    description: 'Analyze student event feedback, sentiment, and evaluation metrics.',
   },
   {
     id: 'admin-profile',

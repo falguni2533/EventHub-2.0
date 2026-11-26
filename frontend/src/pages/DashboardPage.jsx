@@ -55,6 +55,12 @@ const STUDENT_QUICK_ACTIONS = [
     icon: Ticket,
   },
   {
+    label: 'My Certificates',
+    hint: 'Verified PDF credentials',
+    to: '/certificates',
+    icon: Award,
+  },
+  {
     label: 'My Team',
     hint: 'Manage team rosters',
     to: '/team',

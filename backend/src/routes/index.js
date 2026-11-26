@@ -2,6 +2,8 @@ import { Router } from 'express';
 import healthRoutes from './healthRoutes.js';
 import authRoutes from './authRoutes.js';
 import profileRoutes from './profileRoutes.js';
+import certificateRoutes from './certificateRoutes.js';
+import analyzeRoutes from './analyzeRoutes.js';
 import recommendationRoutes from './recommendationRoutes.js';
 import { adminRouter, studentRouter } from './dashboardRoutes.js';
 
@@ -17,6 +19,9 @@ router.get('/', (req, res) => {
       health: '/api/health',
       auth: '/api/auth',
       profile: '/api/profile',
+      certificates: '/api/certificates',
+      analyze: '/api/analyze',
+      recommendations: '/api/recommendations',
       studentDashboard: '/api/student/dashboard',
       adminDashboard: '/api/admin/dashboard',
     },
@@ -26,8 +31,10 @@ router.get('/', (req, res) => {
 router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
 router.use('/profile', profileRoutes);
-router.use('/student', studentRouter);
+router.use('/certificates', certificateRoutes);
+router.use('/analyze', analyzeRoutes);
 router.use('/recommendations', recommendationRoutes);
-
+router.use('/student', studentRouter);
+router.use('/admin', adminRouter);
 
 export default router;

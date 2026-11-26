@@ -7,6 +7,7 @@ const STUDENT_SECTIONS = [
   'Explore Events',
   'My Registrations',
   'My Passes',
+  'My Certificates',
   'Attendance',
   'My Team',
   'My Profile',
@@ -15,7 +16,8 @@ const STUDENT_SECTIONS = [
 const ADMIN_CAPABILITIES = [
   'Manage Events (Upcoming Phase)',
   'View Student Registrations (Upcoming Phase)',
-  'Manage Attendance (Upcoming Phase)',
+  'Verify QR/ID & Attendance Control',
+  'Manage & Issue Certificates',
   'Administrative Controls',
 ];
 
