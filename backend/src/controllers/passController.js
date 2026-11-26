@@ -3,8 +3,25 @@ import {
   checkInEventPass,
   getAdminAttendanceOverview,
   listStudentPasses,
+  listStudentRegistrations,
   verifyEventPass,
 } from '../services/passService.js';
+
+/**
+ * GET /api/student/registrations
+ */
+export const getMyRegistrations = async (req, res, next) => {
+  try {
+    const registrations = await listStudentRegistrations(req.user.id);
+    res.status(200).json({
+      success: true,
+      count: registrations.length,
+      data: registrations,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 /**
  * GET /api/student/passes
@@ -15,6 +32,38 @@ export const getMyPasses = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /api/student/passes/upcoming
+ */
+export const getMyUpcomingPasses = async (req, res, next) => {
+  try {
+    const data = await listStudentPasses(req.user.id);
+    res.status(200).json({
+      success: true,
+      count: data.upcoming.length,
+      data: data.upcoming,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /api/student/passes/past
+ */
+export const getMyPastPasses = async (req, res, next) => {
+  try {
+    const data = await listStudentPasses(req.user.id);
+    res.status(200).json({
+      success: true,
+      count: data.past.length,
+      data: data.past,
     });
   } catch (error) {
     next(error);

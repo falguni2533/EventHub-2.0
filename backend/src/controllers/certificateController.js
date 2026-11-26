@@ -3,6 +3,7 @@ import {
   generateCertificateForParticipant,
   generateCertificatesForEvent,
   getEventsWithCertificateParticipants,
+  getStudentCertificateById,
   listAllCertificates,
   listStudentCertificates,
   resolveClientUrl,
@@ -21,6 +22,26 @@ export const getMyCertificates = async (req, res, next) => {
       success: true,
       count: certs.length,
       data: certs,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /api/student/certificates/:certificateId
+ */
+export const getMyCertificateDetail = async (req, res, next) => {
+  try {
+    const clientUrl = resolveClientUrl(req);
+    const cert = await getStudentCertificateById(
+      req.params.certificateId,
+      req.user.id,
+      clientUrl
+    );
+    res.status(200).json({
+      success: true,
+      data: cert,
     });
   } catch (error) {
     next(error);

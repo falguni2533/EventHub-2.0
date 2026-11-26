@@ -111,6 +111,27 @@ export async function listStudentCertificates(studentId, clientUrl) {
 }
 
 /**
+ * Fetch a single certificate belonging to the authenticated student.
+ */
+export async function getStudentCertificateById(certificateId, studentId, clientUrl) {
+  const trimmedId = String(certificateId || '').trim();
+  if (!trimmedId) {
+    throw new AppError('Certificate ID is required', 400);
+  }
+
+  const cert = await Certificate.findOne({
+    student: studentId,
+    certificateId: new RegExp(`^${escapeRegex(trimmedId)}$`, 'i'),
+  }).lean();
+
+  if (!cert) {
+    throw new AppError('Certificate not found', 404);
+  }
+
+  return attachQRCode(cert, clientUrl);
+}
+
+/**
  * Admin: Fetch all certificates with optional status, eventId, and search filtering.
  */
 export async function listAllCertificates({ status, eventId, search }, clientUrl) {
@@ -120,7 +141,11 @@ export async function listAllCertificates({ status, eventId, search }, clientUrl
     filter.event = eventId;
   }
 
-  let certs = await Certificate.find(filter).sort({ createdAt: -1 }).lean();
+  let certs = await Certificate.find(filter)
+    .populate('issuedBy', 'fullName')
+    .populate('revokedBy', 'fullName')
+    .sort({ createdAt: -1 })
+    .lean();
 
   if (search && search.trim()) {
     const q = search.trim().toLowerCase();
@@ -186,6 +211,13 @@ export async function buildCertificatePDF(certificateId, clientUrl) {
   const cert = await findCertificateByCode(trimmedId);
   if (!cert) {
     throw new AppError('Certificate not found', 404);
+  }
+
+  if (cert.status === 'revoked') {
+    throw new AppError(
+      'This certificate has been revoked and cannot be downloaded as a valid credential.',
+      400
+    );
   }
 
   const doc = await createCertificatePDF(cert, clientUrl);
@@ -396,8 +428,10 @@ export async function revokeCertificateById(certificateId, reason, adminUserId, 
     throw new AppError('Certificate ID is required', 400);
   }
 
-  const revocationReason =
-    reason && reason.trim() ? reason.trim() : 'Revoked by event administrator';
+  const revocationReason = String(reason || '').trim();
+  if (!revocationReason) {
+    throw new AppError('A revocation reason is required.', 400);
+  }
 
   const updated = await Certificate.findOneAndUpdate(
     { certificateId: new RegExp(`^${escapeRegex(trimmedId)}$`, 'i') },

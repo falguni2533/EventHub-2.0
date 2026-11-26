@@ -54,6 +54,16 @@ const registrationSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    isDemo: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    seedKey: {
+      type: String,
+      trim: true,
+      default: undefined,
+    },
   },
   {
     timestamps: true,
@@ -68,6 +78,7 @@ const registrationSchema = new mongoose.Schema(
 
 registrationSchema.index({ student: 1, event: 1 }, { unique: true });
 registrationSchema.index({ passToken: 1 }, { unique: true, sparse: true });
+registrationSchema.index({ seedKey: 1 }, { unique: true, sparse: true });
 
 registrationSchema.pre('save', function ensurePassFields(next) {
   if (this.status === 'confirmed') {

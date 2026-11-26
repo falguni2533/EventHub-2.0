@@ -78,6 +78,16 @@ const certificateSchema = new mongoose.Schema(
       ref: 'User',
       default: null,
     },
+    isDemo: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    seedKey: {
+      type: String,
+      trim: true,
+      default: undefined,
+    },
   },
   {
     timestamps: true,
@@ -92,6 +102,7 @@ const certificateSchema = new mongoose.Schema(
 
 // Prevent duplicate certificates for the same student and event
 certificateSchema.index({ student: 1, event: 1 }, { unique: true });
+certificateSchema.index({ seedKey: 1 }, { unique: true, sparse: true });
 
 const Certificate = mongoose.model('Certificate', certificateSchema);
 

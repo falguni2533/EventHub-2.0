@@ -131,6 +131,16 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    isDemo: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    seedKey: {
+      type: String,
+      trim: true,
+      default: undefined,
+    },
   },
   {
     timestamps: true,
@@ -171,6 +181,8 @@ userSchema.methods.comparePassword = async function comparePassword(candidatePas
   if (!candidatePassword || !this.password) return false;
   return bcrypt.compare(candidatePassword, this.password);
 };
+
+userSchema.index({ seedKey: 1 }, { unique: true, sparse: true });
 
 const User = mongoose.model('User', userSchema);
 
