@@ -1,0 +1,13 @@
+{
+  "name": "eventhub-umbrella",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Root package for EventHub – runs backend and frontend together",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

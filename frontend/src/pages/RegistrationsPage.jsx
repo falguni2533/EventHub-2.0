@@ -1,8 +1,27 @@
 import { ClipboardCheck } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { fetchTeamOverview } from '../services/teamService';
 import PageHeader from '../components/common/PageHeader';
 import ComingSoonCard from '../components/common/ComingSoonCard';
 
 export default function RegistrationsPage() {
+  const navigate = useNavigate();
+  const [teamInfo, setTeamInfo] = useState(null);
+
+  useEffect(() => {
+    const loadTeam = async () => {
+      try {
+        const data = await fetchTeamOverview();
+        setTeamInfo(data);
+      } catch (e) {
+        console.error('Failed to load team overview', e);
+      }
+    };
+    loadTeam();
+  }, []);
+
+  const goToTeam = () => navigate('/team');
   return (
     <>
       <PageHeader

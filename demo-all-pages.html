@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EventHub 2.0 — All Pages Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== DESIGN TOKENS ===== */
+:root {
+  --bg-canvas: #faf9fd;
+  --bg-canvas-accent: #f3effd;
+  --bg-surface: #ffffff;
+  --bg-surface-muted: #faf8ff;
+  --sidebar-bg-start: #140b29;
+  --sidebar-bg-mid: #1f1140;
+  --sidebar-bg-end: #2b1759;
+  --sidebar-border: rgba(196,181,253,0.16);
+  --sidebar-text: #ddd6fe;
+  --sidebar-text-muted: #a78bfa;
+  --sidebar-hover: rgba(167,139,250,0.14);
+  --sidebar-active: linear-gradient(135deg,#7c3aed 0%,#6d28d9 100%);
+  --accent-primary: #6d28d9;
+  --accent-secondary: #7c3aed;
+  --accent-soft: #f1ecfe;
+  --accent-glow: rgba(124,58,237,0.16);
+  --text-primary: #1a1230;
+  --text-secondary: #544b6e;
+  --text-muted: #766e8f;
+  --border-subtle: #ebe7f7;
+  --border-strong: #d8cff5;
+  --status-ok-bg: #ecfdf5; --status-ok-text: #047857; --status-ok-border: #a7f3d0;
+  --status-warn-bg: #fffbeb; --status-warn-text: #b45309; --status-warn-border: #fde68a;
+  --status-err-bg: #fef2f2; --status-err-text: #b91c1c; --status-err-border: #fecaca;
+  --shadow-card: 0 2px 12px rgba(32,18,72,.04), 0 1px 2px rgba(32,18,72,.03);
+  --shadow-card-hover: 0 10px 26px rgba(67,36,145,.09), 0 2px 6px rgba(32,18,72,.04);
+  --shadow-hero: 0 12px 30px rgba(27,15,58,.15);
+  --radius-sm: 10px; --radius-md: 14px; --radius-lg: 20px;
+  --sidebar-width: 264px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scrollbar-color:#c4b5fd transparent;scrollbar-width:thin}
+body{margin:0;min-height:100dvh;font-family:'Inter',system-ui,sans-serif;color:var(--text-primary);background:var(--bg-canvas);-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(circle at 92% 6%,rgba(221,214,254,.35) 0%,transparent 32%),radial-gradient(circle at 12% 94%,rgba(237,233,254,.45) 0%,transparent 38%);
+}
+h1,h2,h3,h4,.font-display{font-family:'Space Grotesk','Inter',system-ui,sans-serif;margin:0}
+p{margin:0}a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}
+
+/* ===== APP SHELL ===== */
+.app-shell{display:grid;grid-template-columns:var(--sidebar-width) minmax(0,1fr);min-height:100dvh;width:100%}
+
+/* ===== SIDEBAR ===== */
+.sidebar{position:sticky;top:0;height:100dvh;display:flex;flex-direction:column;padding:1.25rem .9rem;color:#fff;
+  background:radial-gradient(1.5px 1.5px at 22px 36px,rgba(255,255,255,.5) 50%,transparent 100%),radial-gradient(1px 1px at 185px 72px,rgba(221,214,254,.45) 50%,transparent 100%),radial-gradient(1.5px 1.5px at 78px 180px,rgba(255,255,255,.35) 50%,transparent 100%),radial-gradient(1px 1px at 220px 260px,rgba(196,181,253,.45) 50%,transparent 100%),radial-gradient(1.5px 1.5px at 45px 410px,rgba(255,255,255,.3) 50%,transparent 100%),radial-gradient(circle at 90% 10%,rgba(139,92,246,.24) 0%,transparent 45%),linear-gradient(170deg,var(--sidebar-bg-start) 0%,var(--sidebar-bg-mid) 55%,var(--sidebar-bg-end) 100%);
+  border-right:1px solid var(--sidebar-border);overflow-y:auto;z-index:30}
+.sidebar-brand{display:flex;align-items:center;gap:.5rem;padding:.2rem .35rem 1.1rem;border-bottom:1px solid var(--sidebar-border);margin-bottom:1.1rem}
+.brand-mark{display:flex;align-items:center;gap:.72rem}
+.brand-logo{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);box-shadow:0 6px 16px rgba(124,58,237,.4);color:#fff;flex-shrink:0}
+.brand-logo svg{width:20px;height:20px}
+.brand-title{font-size:1.1rem;font-weight:700;letter-spacing:-.02em}
+.brand-subtitle{font-size:.7rem;color:var(--sidebar-text-muted);letter-spacing:.05em;text-transform:uppercase}
+.sidebar-section-label{padding-left:.65rem;margin-bottom:.5rem;font-size:.68rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--sidebar-text-muted)}
+.sidebar-nav{display:flex;flex-direction:column;gap:.3rem;flex:1}
+.sidebar-link{display:flex;align-items:center;gap:.72rem;padding:.68rem .85rem;border-radius:var(--radius-sm);color:var(--sidebar-text);font-size:.9rem;font-weight:500;transition:background .18s,color .18s;cursor:pointer;border:none;background:none;width:100%;text-align:left}
+.sidebar-link:hover{background:var(--sidebar-hover);color:#fff}
+.sidebar-link.active{background:var(--sidebar-active);color:#fff;font-weight:600;box-shadow:0 6px 16px rgba(109,40,217,.36)}
+.sidebar-link svg{width:18px;height:18px;flex-shrink:0}
+.sidebar-footer{margin-top:1.15rem;padding:.85rem;border-radius:var(--radius-md);background:rgba(255,255,255,.06);border:1px solid var(--sidebar-border)}
+.sidebar-footer-title{font-size:.82rem;font-weight:600}
+.sidebar-footer-note{margin-top:.25rem;font-size:.74rem;color:var(--sidebar-text)}
+.sidebar-logout-btn{margin-top:.75rem;width:100%;display:flex;align-items:center;justify-content:center;gap:.45rem;padding:.52rem .75rem;border-radius:var(--radius-sm);border:1px solid rgba(221,214,254,.22);background:rgba(255,255,255,.08);color:#fff;font-size:.82rem;font-weight:600;transition:background .16s}
+.sidebar-logout-btn:hover{background:rgba(167,139,250,.22)}
+
+/* ===== TOPBAR ===== */
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.85rem 1.75rem;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-subtle)}
+.topbar-left{display:flex;align-items:center;gap:.85rem}
+.topbar-breadcrumb{display:flex;align-items:center;gap:.25rem;font-size:.74rem;font-weight:500;color:var(--text-muted)}
+.topbar-breadcrumb-current{color:var(--accent-primary);font-weight:600}
+.topbar-title{font-size:1.15rem;font-weight:700;color:var(--text-primary)}
+.topbar-right{display:flex;align-items:center;gap:.65rem}
+.topbar-icon-btn{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;border:1px solid var(--border-subtle);background:var(--bg-surface);color:var(--text-secondary);transition:.15s}
+.topbar-icon-btn:hover{border-color:var(--border-strong);background:var(--bg-surface-muted);color:var(--accent-primary)}
+.topbar-avatar{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#ede9fe,#ddd6fe);color:var(--accent-primary);font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:700}
+.topbar-profile-trigger{display:flex;align-items:center;gap:.55rem;padding:.3rem .65rem .3rem .35rem;border-radius:999px;border:1px solid var(--border-subtle);background:var(--bg-surface);color:var(--text-primary)}
+
+/* ===== WORKSPACE ===== */
+.workspace-column{display:flex;flex-direction:column;min-width:0;min-height:100dvh}
+.main-content{flex:1;padding:1.6rem 1.75rem 2.25rem;width:100%;max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:1.35rem}
+
+/* ===== COSMIC HERO ===== */
+.cosmic-hero{position:relative;overflow:clip;border-radius:var(--radius-lg);padding:1.65rem 1.85rem;color:#fff;
+  background:radial-gradient(2px 2px at 14% 24%,rgba(255,255,255,.65) 50%,transparent 100%),radial-gradient(1.5px 1.5px at 38% 72%,rgba(221,214,254,.55) 50%,transparent 100%),radial-gradient(2px 2px at 70% 22%,rgba(255,255,255,.6) 50%,transparent 100%),radial-gradient(1.5px 1.5px at 86% 68%,rgba(196,181,253,.6) 50%,transparent 100%),radial-gradient(circle at 90% 18%,rgba(167,139,250,.28) 0%,transparent 42%),linear-gradient(130deg,#1b1035,#2f1863 60%,#4c1d95);
+  box-shadow:var(--shadow-hero);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1.25rem}
+.cosmic-hero-badge{display:inline-flex;align-items:center;gap:.42rem;padding:.32rem .72rem;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);font-size:.74rem;font-weight:600;color:#ede9fe;margin-bottom:.65rem}
+.cosmic-hero h2{font-size:1.5rem;margin-bottom:.35rem}
+.cosmic-hero p{font-size:.92rem;color:rgba(255,255,255,.8);max-width:540px}
+.hero-meta-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.85rem}
+.hero-meta-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.25rem .6rem;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);font-size:.74rem;color:#ede9fe}
+.hero-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.btn-hero-ghost{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1rem;border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font-size:.85rem;font-weight:600;transition:.18s}
+.btn-hero-solid{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1.1rem;border-radius:var(--radius-sm);border:0;background:#fff;color:var(--accent-primary);font-size:.85rem;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.12);transition:.18s}
+
+/* ===== STAT CARDS ===== */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem}
+.stat-card{display:flex;align-items:flex-start;gap:1rem;padding:1.15rem 1.25rem;border-radius:var(--radius-md);background:var(--bg-surface);border:1px solid var(--border-subtle);box-shadow:var(--shadow-card);transition:transform .2s,box-shadow .2s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-card-hover)}
+.stat-icon{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--accent-soft);color:var(--accent-primary);flex-shrink:0}
+.stat-icon svg{width:22px;height:22px}
+.stat-label{font-size:.78rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em}
+.stat-value{font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-primary);line-height:1.2}
+.stat-hint{font-size:.76rem;color:var(--text-muted);margin-top:.15rem}
+
+/* ===== CARDS ===== */
+.card{background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1.35rem 1.5rem;box-shadow:var(--shadow-card)}
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.1rem;flex-wrap:wrap}
+.card-title{font-size:1.05rem;font-weight:700}
+.card-subtitle{font-size:.82rem;color:var(--text-muted);margin-top:.2rem}
+.btn-primary{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1.1rem;border-radius:var(--radius-sm);border:0;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;font-weight:600;font-size:.85rem;box-shadow:0 4px 14px rgba(109,40,217,.25);transition:.18s;cursor:pointer}
+.btn-primary:hover{box-shadow:0 6px 20px rgba(109,40,217,.35);transform:translateY(-1px)}
+.btn-secondary{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .85rem;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-surface);color:var(--text-secondary);font-size:.82rem;font-weight:600;transition:.15s}
+
+/* ===== EVENT CARDS ===== */
+.eh-events-grid{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.eh-event-card{background:var(--bg-surface);border-radius:var(--radius-md);box-shadow:var(--shadow-card);overflow:hidden;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s}
+.eh-event-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-card-hover)}
+.eh-event-banner{height:6rem}
+.eh-event-body{padding:1rem;display:flex;flex-direction:column;gap:.5rem;flex:1}
+.eh-event-badge{align-self:flex-start;padding:.2rem .6rem;border-radius:999px;font-size:.75rem;font-weight:600;color:#fff}
+.eh-event-title{font-size:1.1rem;font-weight:600;margin:0}
+.eh-event-desc{margin:0;font-size:.9rem;color:var(--text-secondary);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.eh-event-meta{display:flex;flex-wrap:wrap;gap:.4rem;font-size:.8rem;color:var(--text-muted)}
+.eh-event-meta-item{display:flex;align-items:center;gap:.25rem}
+.eh-event-seats{display:flex;align-items:center;gap:.5rem;font-size:.85rem}
+.eh-event-seats-progress{flex:1;height:6px;background:var(--border-subtle);border-radius:3px;overflow:hidden}
+.eh-event-seats-fill{height:100%;background:var(--accent-primary)}
+.eh-event-price-tag{padding:.2rem .5rem;border-radius:999px;font-size:.75rem;font-weight:600;background:var(--accent-soft);color:var(--accent-primary);display:inline-flex;align-items:center;gap:.2rem}
+.eh-event-price-free{background:var(--status-ok-bg);color:var(--status-ok-text)}
+.eh-event-view-btn{align-self:flex-start;margin-top:.5rem;padding:.4rem .85rem;border-radius:var(--radius-sm);border:1px solid var(--accent-primary);background:transparent;color:var(--accent-primary);font-weight:600;font-size:.82rem;cursor:pointer;transition:.15s}
+.eh-event-view-btn:hover{background:var(--accent-primary);color:#fff}
+.eh-event-view-btn.registered{background:var(--status-ok-bg);color:var(--status-ok-text);border-color:var(--status-ok-border)}
+
+/* ===== FILTERS ===== */
+.eh-events-filters{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;margin-bottom:.5rem}
+.eh-events-search{position:relative;flex:1;max-width:300px}
+.eh-events-search input{width:100%;padding:.4rem .4rem .4rem 2rem;border:1px solid var(--border-subtle);border-radius:var(--radius-sm);background:var(--bg-surface);color:var(--text-primary);font:inherit}
+.eh-events-categories{display:flex;flex-wrap:wrap;gap:.5rem}
+.eh-events-category-chip{padding:.2rem .6rem;border-radius:999px;background:var(--bg-surface);border:1px solid var(--border-subtle);font-size:.75rem;cursor:pointer}
+.eh-events-category-chip.active{background:var(--accent-primary);color:#fff;border-color:var(--accent-primary)}
+
+/* ===== TEAM PAGE ===== */
+.tp{max-width:1100px;margin:0 auto;padding:8px 4px 40px}
+.tp h2{margin:28px 0 10px}.tp h3{margin:8px 0 4px}
+.tp-sub{color:#6b6b80;font-size:.9rem;margin:2px 0}
+.tp-why{color:#5b21b6;font-size:.88rem;margin:6px 0 10px}
+.tp-tabs{display:flex;gap:8px;margin:16px 0}
+.tp-tabs button{flex:1;padding:12px;border-radius:12px;border:1px solid #ddd6fe;background:#fff;cursor:pointer;font-weight:600;font:inherit}
+.tp-tabs button.on{background:#7c3aed;color:#fff;border-color:#7c3aed}
+.tp-input{width:100%;padding:10px 12px;margin:6px 0;border:1px solid #ddd6fe;border-radius:10px;box-sizing:border-box;font:inherit}
+.tp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.tp-card{background:#fff;border:1px solid #ede9fe;border-radius:16px;padding:16px;margin:10px 0;box-shadow:0 2px 8px rgba(124,58,237,.06)}
+.tp-grid .tp-card{margin:0}
+.tp-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tp-badge{display:inline-block;background:#ede9fe;color:#6d28d9;border-radius:999px;padding:3px 10px;font-size:.78rem;font-weight:700;margin-right:6px}
+.tp-badge.green{background:#dcfce7;color:#15803d}
+.tp-badge.amber{background:var(--status-warn-bg);color:var(--status-warn-text)}
+.tp-badge.red{background:var(--status-err-bg);color:var(--status-err-text)}
+.tp-btn{background:#7c3aed;color:#fff;border:0;border-radius:10px;padding:9px 16px;font-weight:600;cursor:pointer}
+.tp-btn.ghost{background:#fff;color:#7c3aed;border:1px solid #ddd6fe}
+.tp-member{padding:6px 0;border-top:1px solid #f3f0ff}
+.tp-progress{height:6px;background:#ebe7f7;border-radius:3px;overflow:hidden;margin:6px 0}
+.tp-progress-fill{height:100%;background:var(--accent-primary);border-radius:3px}
+
+/* ===== COMING SOON ===== */
+.coming-soon-card{text-align:center;padding:3rem 2rem;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-md);box-shadow:var(--shadow-card)}
+.coming-soon-icon{display:inline-grid;place-items:center;width:64px;height:64px;border-radius:16px;background:var(--accent-soft);color:var(--accent-primary);margin-bottom:1rem}
+.coming-soon-card h3{font-size:1.1rem;margin-bottom:.5rem}
+.coming-soon-card p{color:var(--text-muted);font-size:.88rem;max-width:460px;margin:0 auto .75rem}
+.coming-soon-hint{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .7rem;border-radius:999px;background:var(--accent-soft);color:var(--accent-primary);font-size:.74rem;font-weight:600}
+
+/* ===== QUICK ACTIONS ===== */
+.quick-actions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:.85rem;margin-top:1rem}
+.quick-action{display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:1.1rem .85rem;border-radius:var(--radius-md);border:1px solid var(--border-subtle);background:var(--bg-surface);cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s;text-align:center}
+.quick-action:hover{transform:translateY(-2px);box-shadow:var(--shadow-card-hover);border-color:var(--accent-primary)}
+.quick-action-icon{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:var(--accent-soft);color:var(--accent-primary)}
+.quick-action-label{font-size:.85rem;font-weight:600}
+.quick-action-hint{font-size:.74rem;color:var(--text-muted)}
+
+/* ===== EVENTS PAGE GRID ===== */
+.events-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
+.event-card{background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1.1rem;box-shadow:var(--shadow-card);transition:transform .2s,box-shadow .2s}
+.event-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-card-hover)}
+.event-card-top{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.6rem}
+.event-category-pill{padding:.18rem .55rem;border-radius:999px;font-size:.72rem;font-weight:600;background:var(--accent-soft);color:var(--accent-primary)}
+.event-date-tag{font-size:.72rem;color:var(--text-muted);font-weight:500}
+.event-card-title{font-size:1rem;font-weight:700;margin-bottom:.3rem}
+.event-card-desc{font-size:.82rem;color:var(--text-secondary);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.event-card-meta{display:flex;flex-wrap:wrap;gap:.5rem;font-size:.76rem;color:var(--text-muted);margin-top:.5rem}
+.event-card-meta span{display:flex;align-items:center;gap:.2rem}
+
+/* ===== DASHBOARD MAIN ===== */
+.dashboard-main-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:1.35rem}
+@media(max-width:900px){.dashboard-main-grid{grid-template-columns:1fr}}
+
+/* ===== PROFILE CARD ===== */
+.profile-section{display:grid;grid-template-columns:280px 1fr;gap:1.5rem}
+@media(max-width:800px){.profile-section{grid-template-columns:1fr}}
+.profile-avatar-card{text-align:center;padding:2rem 1.5rem;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-md);box-shadow:var(--shadow-card)}
+.profile-avatar-big{display:inline-grid;place-items:center;width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#ede9fe,#ddd6fe);color:var(--accent-primary);font-family:'Space Grotesk';font-size:1.6rem;font-weight:700;margin-bottom:.75rem}
+.profile-name{font-size:1.1rem;font-weight:700}
+.profile-college{font-size:.82rem;color:var(--text-muted);margin-top:.2rem}
+.profile-details{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:600px){.profile-details{grid-template-columns:1fr}}
+.profile-field{background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:.85rem 1rem}
+.profile-field-label{font-size:.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem}
+.profile-field-value{font-size:.92rem;font-weight:600;color:var(--text-primary)}
+.profile-chips{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.4rem}
+.profile-chip{padding:.18rem .5rem;border-radius:999px;font-size:.72rem;font-weight:600;background:var(--accent-soft);color:var(--accent-primary)}
+
+/* ===== REGISTRATION CARDS ===== */
+.reg-card{background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1.15rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;box-shadow:var(--shadow-card);transition:transform .2s}
+.reg-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-card-hover)}
+.reg-info h4{margin:0 0 .2rem;font-size:.95rem}
+.reg-info p{font-size:.8rem;color:var(--text-muted)}
+.reg-status{padding:.25rem .65rem;border-radius:999px;font-size:.72rem;font-weight:700}
+.reg-status.confirmed{background:var(--status-ok-bg);color:var(--status-ok-text);border:1px solid var(--status-ok-border)}
+.reg-status.pending{background:var(--status-warn-bg);color:var(--status-warn-text);border:1px solid var(--status-warn-border)}
+
+/* ===== UTILITY ===== */
+.empty-state{text-align:center;padding:2.5rem 1.5rem;color:var(--text-muted)}
+.empty-state svg{width:48px;height:48px;color:var(--border-strong);margin-bottom:.75rem}
+.empty-state p{font-size:.88rem}
+.section-title{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;font-size:1.05rem;font-weight:700}
+.section-title svg{color:var(--accent-primary)}
+.pill-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.36rem .72rem;border-radius:999px;font-size:.76rem;font-weight:600;border:1px solid var(--border-subtle);background:var(--bg-surface);color:var(--text-secondary)}
+.pill-badge.is-ok{background:var(--status-ok-bg);color:var(--status-ok-text);border-color:var(--status-ok-border)}
+.pill-badge.is-warn{background:var(--status-warn-bg);color:var(--status-warn-text);border-color:var(--status-warn-border)}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .app-shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 3.8L17.5 8l-3 2.7.7 4.3L12 13l-3.2 2 .7-4.3L6.5 8l4-1.2L12 3z"/></svg>
+        </div>
+        <div>
+          <div class="brand-title font-display">EventHub</div>
+          <div class="brand-subtitle">Student Portal</div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-section-label">Student Panel</div>
+    <nav class="sidebar-nav" id="sidebarNav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-title">Payal Sharma</div>
+      <p class="sidebar-footer-note">GCET Engineering • Student</p>
+      <button class="sidebar-logout-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        <span>Log Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN WORKSPACE ===== -->
+  <div class="workspace-column">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div>
+          <div class="topbar-breadcrumb">
+            <span>EventHub</span>
+            <span>›</span>
+            <span class="topbar-breadcrumb-current" id="topbarBreadcrumb">Dashboard</span>
+          </div>
+          <div class="topbar-title font-display" id="topbarTitle">Dashboard</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-icon-btn" title="Notifications">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        </button>
+        <button class="topbar-profile-trigger">
+          <div class="topbar-avatar">PS</div>
+          <div>
+            <div style="font-size:.84rem;font-weight:600">Payal Sharma</div>
+            <div style="font-size:.7rem;color:var(--text-muted);text-transform:capitalize">student</div>
+          </div>
+        </button>
+      </div>
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <main class="main-content" id="pageContent"></main>
+  </div>
+</div>
+
+<script>
+// ===== NAV ITEMS =====
+const NAV = [
+  {id:'dashboard',label:'Dashboard',icon:'layout-dashboard'},
+  {id:'events',label:'Explore Events',icon:'compass'},
+  {id:'registrations',label:'My Registrations',icon:'clipboard-check'},
+  {id:'passes',label:'My Passes',icon:'ticket'},
+  {id:'attendance',label:'Attendance',icon:'scan-line'},
+  {id:'team',label:'My Team',icon:'users'},
+  {id:'profile',label:'My Profile',icon:'user-circle'},
+];
+
+const ICONS = {
+  'layout-dashboard': '<path d="M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z"/>',
+  'compass': '<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88"/>',
+  'clipboard-check': '<path d="M9 2h6M9 2a2 2 0 00-2 2v1h10V4a2 2 0 00-2-2M5 8v12a2 2 0 002 2h10a2 2 0 002-2V8M5 8h14"/><path d="M9 15l2 2 4-4"/>',
+  'ticket': '<path d="M2 9a3 3 0 010 6v2a2 2 0 002 2h16a2 2 0 002-2v-2a3 3 0 010-6V7a2 2 0 00-2-2H4a2 2 0 00-2 2z"/><path d="M13 5v2M13 17v2M13 11v2"/>',
+  'scan-line': '<path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/>',
+  'users': '<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>',
+  'user-circle': '<path d="M18 20a6 6 0 00-12 0"/><circle cx="12" cy="10" r="4"/><circle cx="12" cy="12" r="10"/>',
+  'calendar': '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+  'map-pin': '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>',
+  'sparkles': '<path d="M12 3l1.5 3.8L17.5 8l-3 2.7.7 4.3L12 13l-3.2 2 .7-4.3L6.5 8l4-1.2L12 3z"/>',
+  'arrow-right': '<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>',
+};
+
+function icon(name, size=18) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]||''}</svg>`;
+}
+
+// ===== SIDEBAR NAV =====
+const sidebarNav = document.getElementById('sidebarNav');
+NAV.forEach((item,i) => {
+  const btn = document.createElement('button');
+  btn.className = 'sidebar-link' + (i===0?' active':'');
+  btn.innerHTML = `${icon(item.icon)} <span>${item.label}</span>`;
+  btn.onclick = () => navigateTo(item.id);
+  btn.dataset.page = item.id;
+  sidebarNav.appendChild(btn);
+});
+
+function navigateTo(pageId) {
+  document.querySelectorAll('.sidebar-link').forEach(el => el.classList.toggle('active', el.dataset.page===pageId));
+  const item = NAV.find(n=>n.id===pageId);
+  document.getElementById('topbarBreadcrumb').textContent = item.label;
+  document.getElementById('topbarTitle').textContent = item.label;
+  renderPage(pageId);
+}
+
+// ===== PAGE RENDERERS =====
+const EVENTS_DATA = [
+  {title:'TechFest 2026',category:'Technical',date:'2026-12-15',venue:'Main Auditorium',desc:'Annual technology festival featuring coding competitions, robotics, and AI workshops.',capacity:500,filled:342,fee:0},
+  {title:'Cultural Night',category:'Cultural',date:'2026-12-20',venue:'Open Air Theatre',desc:'A vibrant night of dance, music, drama, and art performances by students.',capacity:800,filled:567,fee:100},
+  {title:'Hackathon Sprint',category:'Technical',date:'2027-01-05',venue:'CS Lab Complex',desc:'24-hour hackathon – build innovative solutions for real-world problems.',capacity:200,filled:198,fee:0},
+  {title:'Photography Walk',category:'Workshop',date:'2027-01-10',venue:'Campus Gardens',desc:'Learn composition, lighting, and mobile photography techniques.',capacity:50,filled:12,fee:50},
+  {title:'Career Fair 2027',category:'Career',date:'2027-01-20',venue:'Convention Center',desc:'Meet top recruiters from 100+ companies. Resume reviews and mock interviews.',capacity:1000,filled:445,fee:0},
+  {title:'Design Thinking Workshop',category:'Workshop',date:'2027-02-01',venue:'Innovation Hub',desc:'Hands-on workshop on UX research, prototyping, and design systems.',capacity:60,filled:60,fee:200},
+];
+const CATEGORIES = ['All','Technical','Cultural','Workshop','Career'];
+const BANNER_COLORS = ['linear-gradient(135deg,#6d28d9,#4c1d95)','linear-gradient(135deg,#ec4899,#be185d)','linear-gradient(135deg,#2563eb,#1e40af)','linear-gradient(135deg,#059669,#047857)','linear-gradient(135deg,#d97706,#b45309)','linear-gradient(135deg,#dc2626,#991b1b)'];
+
+function renderPage(id) {
+  const c = document.getElementById('pageContent');
+  switch(id) {
+    case 'dashboard': c.innerHTML = renderDashboard(); break;
+    case 'events': c.innerHTML = renderEvents(); break;
+    case 'registrations': c.innerHTML = renderRegistrations(); break;
+    case 'passes': c.innerHTML = renderComingSoon('My Passes','QR Pass Wallet','Your digital QR entry passes for confirmed events will appear here. Show them at venue check-in desks for instant entry.','Upcoming Feature Phase','GET /api/passes/my'); break;
+    case 'attendance': c.innerHTML = renderComingSoon('Attendance','Attendance Tracker','Your verified check-ins and session attendance logs from scanned QR passes will be displayed here.','Upcoming Feature Phase','GET /api/attendance/my'); break;
+    case 'team': c.innerHTML = renderTeam(); break;
+    case 'profile': c.innerHTML = renderProfile(); break;
+  }
+}
+
+function renderDashboard() {
+  return `
+    <section class="cosmic-hero">
+      <div>
+        <div class="cosmic-hero-badge">${icon('sparkles',14)} <span>Student Portal</span></div>
+        <h2>Good Afternoon, Payal</h2>
+        <p>Track upcoming campus events, review your registrations, and access your passes from one unified student workspace.</p>
+        <div class="hero-meta-chips">
+          <span class="hero-meta-chip">${icon('layout-dashboard',14)} GCET Engineering</span>
+          <span class="hero-meta-chip">${icon('user-circle',14)} ID: STU2024001</span>
+          <span class="hero-meta-chip">${icon('user-circle',14)} B.Tech CSE • 3rd Year</span>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <button class="btn-hero-ghost" onclick="navigateTo('profile')">${icon('user-circle',16)} My Profile</button>
+        <button class="btn-hero-solid" onclick="navigateTo('events')">${icon('compass',16)} Explore Events</button>
+      </div>
+    </section>
+
+    <section class="stats-grid">
+      ${statCard('Upcoming Events','6','Published campus events ahead','calendar')}
+      ${statCard('My Registrations','3','Active event registrations','clipboard-check')}
+      ${statCard('My Passes','2','Issued digital QR passes','ticket')}
+      ${statCard('Attendance','85%','17 of 20 sessions present','scan-line')}
+    </section>
+
+    <div class="dashboard-main-grid">
+      <section class="card">
+        <div class="card-header">
+          <div><h3 class="card-title">Upcoming Events</h3><p class="card-subtitle">Live published events from MongoDB</p></div>
+          <button class="btn-secondary" onclick="navigateTo('events')">View All ${icon('arrow-right',14)}</button>
+        </div>
+        <div class="events-grid">
+          ${EVENTS_DATA.slice(0,2).map(e => `
+            <article class="event-card">
+              <div class="event-card-top"><span class="event-category-pill">${e.category}</span><span class="event-date-tag">${e.date}</span></div>
+              <h4 class="event-card-title">${e.title}</h4>
+              <p class="event-card-desc">${e.desc}</p>
+              <div class="event-card-meta">
+                <span>${icon('map-pin',13)} ${e.venue}</span>
+                <span>${icon('users',13)} ${e.capacity} seats</span>
+              </div>
+            </article>
+          `).join('')}
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header"><div><h3 class="card-title">Recent Activity</h3><p class="card-subtitle">Your latest registrations & check-ins</p></div></div>
+        <div style="display:flex;flex-direction:column;gap:.6rem">
+          ${activityItem('Registered for TechFest 2026','2 hours ago','#dcfce7','#047857')}
+          ${activityItem('Pass issued for Cultural Night','1 day ago','#ede9fe','#6d28d9')}
+          ${activityItem('Checked in at Workshop #3','3 days ago','#dbeafe','#2563eb')}
+          ${activityItem('Team invite accepted','5 days ago','#fef3c7','#b45309')}
+        </div>
+      </section>
+    </div>
+
+    <section class="card">
+      <h3 class="card-title">Quick Actions</h3>
+      <p class="card-subtitle">Jump directly to key student modules</p>
+      <div class="quick-actions-grid">
+        ${quickAction('Explore Events','Browse fests & workshops','compass','events')}
+        ${quickAction('My Registrations','Check sign-up status','clipboard-check','registrations')}
+        ${quickAction('My Passes','Digital QR entry passes','ticket','passes')}
+        ${quickAction('My Team','Manage team rosters','users','team')}
+        ${quickAction('My Profile','College & student ID','user-circle','profile')}
+      </div>
+    </section>
+  `;
+}
+
+function renderEvents() {
+  return `
+    <section class="cosmic-hero">
+      <div>
+        <div class="cosmic-hero-badge">${icon('sparkles',14)} <span>Student Panel • Events</span></div>
+        <h2>Campus Events Directory</h2>
+        <p>Discover upcoming technical fests, workshops, cultural nights, and inter-college competitions.</p>
+      </div>
+    </section>
+
+    <div class="section-title">${icon('sparkles',18)} Recommended for You</div>
+    <div class="eh-events-grid">
+      ${EVENTS_DATA.slice(0,3).map((e,i) => eventCard(e,i,i===0)).join('')}
+    </div>
+
+    <div class="eh-events-filters">
+      <div class="eh-events-search"><input placeholder="Search events..." style="font:inherit"></div>
+      <div class="eh-events-categories">
+        ${CATEGORIES.map((c,i) => `<span class="eh-events-category-chip${i===0?' active':''}">${c}</span>`).join('')}
+      </div>
+    </div>
+    <div style="font-size:.9rem;color:var(--text-secondary);margin-bottom:.5rem">Showing ${EVENTS_DATA.length} events</div>
+    <div class="eh-events-grid">
+      ${EVENTS_DATA.map((e,i) => eventCard(e,i,i<2)).join('')}
+    </div>
+  `;
+}
+
+function eventCard(e, i, registered=false) {
+  const pct = Math.round((e.filled/e.capacity)*100);
+  const soldOut = e.filled >= e.capacity;
+  return `
+    <div class="eh-event-card">
+      <div class="eh-event-banner" style="background:${BANNER_COLORS[i%6]}"></div>
+      <div class="eh-event-body">
+        <span class="eh-event-badge" style="background:${BANNER_COLORS[i%6]}">${e.category}</span>
+        <h3 class="eh-event-title">${e.title}</h3>
+        <p class="eh-event-desc">${e.desc}</p>
+        <div class="eh-event-meta">
+          <span class="eh-event-meta-item">${icon('calendar',14)} ${e.date}</span>
+          <span class="eh-event-meta-item">${icon('map-pin',14)} ${e.venue}</span>
+        </div>
+        <div class="eh-event-seats">
+          <div class="eh-event-seats-progress"><div class="eh-event-seats-fill" style="width:${pct}%"></div></div>
+          <span style="white-space:nowrap;font-size:.8rem">${e.capacity-e.filled} left</span>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:center;margin-top:auto">
+          <span class="eh-event-price-tag ${e.fee===0?'eh-event-price-free':''}">${e.fee===0?'FREE':'₹'+e.fee}</span>
+          ${soldOut?'<span style="padding:.2rem .5rem;border-radius:999px;font-size:.75rem;font-weight:600;background:var(--status-err-bg);color:var(--status-err-text)">Sold Out</span>':''}
+        </div>
+        <button class="eh-event-view-btn ${registered?'registered':''}" ${soldOut?'disabled':''}>${registered?'Registered ✓':soldOut?'Sold Out':'Register Now'}</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderRegistrations() {
+  const regs = [
+    {title:'TechFest 2026',date:'Dec 15, 2026',regId:'REG-2026-0042',fee:'FREE',status:'confirmed'},
+    {title:'Cultural Night',date:'Dec 20, 2026',regId:'REG-2026-0078',fee:'₹100',status:'confirmed'},
+    {title:'Photography Walk',date:'Jan 10, 2027',regId:'REG-2027-0003',fee:'₹50',status:'pending'},
+  ];
+  return `
+    <section class="cosmic-hero">
+      <div>
+        <div class="cosmic-hero-badge">${icon('sparkles',14)} <span>Student Panel • My Registrations</span></div>
+        <h2>My Event Registrations</h2>
+        <p>Review your submitted registrations, confirmation status, and approval updates.</p>
+      </div>
+      <div class="hero-actions">
+        <button class="btn-hero-solid" onclick="navigateTo('team')">${icon('users',16)} Go to My Team (2)</button>
+      </div>
+    </section>
+
+    <div class="stats-grid" style="margin-bottom:.5rem">
+      ${statCard('Total','3','Registered events','clipboard-check')}
+      ${statCard('Confirmed','2','Ready to attend','ticket')}
+      ${statCard('Pending','1','Awaiting confirmation','scan-line')}
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:1rem">
+      ${regs.map(r => `
+        <div class="reg-card">
+          <div class="reg-info">
+            <h4>${r.title}</h4>
+            <p>${r.date} • ${r.regId} • Fee: ${r.fee}</p>
+          </div>
+          <div style="display:flex;gap:.5rem;align-items:center">
+            <span class="reg-status ${r.status}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span>
+            ${r.status==='confirmed'?'<button class="btn-primary" style="font-size:.78rem;padding:.4rem .8rem">Download Pass</button>':''}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderTeam() {
+  return `
+    <section class="cosmic-hero">
+      <div>
+        <div class="cosmic-hero-badge">${icon('sparkles',14)} <span>Student Panel • My Team</span></div>
+        <h2>Team Management</h2>
+        <p>Create teams, find members, or join existing teams.</p>
+      </div>
+      <div class="hero-meta-chips">
+        <span class="hero-meta-chip">${icon('users',14)} My Teams: 2</span>
+        <span class="hero-meta-chip">${icon('arrow-right',14)} Requests for you: 1</span>
+        <span class="hero-meta-chip">${icon('arrow-right',14)} Requests sent: 2</span>
+      </div>
+    </section>
+
+    <div class="tp">
+      <div class="tp-tabs">
+        <button class="on" id="tabLeader" onclick="switchTab('leader')">I have a team, find members</button>
+        <button id="tabSolo" onclick="switchTab('solo')">I'm solo, find a team</button>
+      </div>
+
+      <select class="tp-input"><option>TechFest 2026 – 15/12/2026</option><option>Cultural Night – 20/12/2026</option><option>Hackathon Sprint – 05/01/2027</option></select>
+
+      <div id="tabLeaderContent">
+        <h2>Recommended Members for "Code Warriors"</h2>
+        <p class="tp-sub">3/4 members</p>
+        <div class="tp-grid">
+          ${teamMemberCard('Rahul Verma','GCET Engineering','React, Node.js, MongoDB',87,true,'Shared interest in Web Dev • Same college • Looking for a team')}
+          ${teamMemberCard('Ananya Singh','LNCT Bhopal','Python, ML, TensorFlow',72,false,'Python skills match • ML expertise')}
+          ${teamMemberCard('Karan Patel','IET DAVV','Java, Spring Boot, AWS',65,false,'Backend skills match • Available for team events')}
+        </div>
+      </div>
+
+      <div id="tabSoloContent" style="display:none">
+        <div class="tp-card">
+          <h3>List yourself as looking for a team</h3>
+          <input class="tp-input" placeholder="Your skills (comma separated)" value="React, JavaScript, UI Design">
+          <textarea class="tp-input" placeholder="Short note (optional)">Looking for a frontend-focused team for TechFest!</textarea>
+          <button class="tp-btn">I'm looking for a team</button>
+        </div>
+        <h2>Recommended Teams</h2>
+        <div class="tp-grid">
+          ${teamCard('Debug Dynasty','Amit Kumar',3,4,91,'react, node.js','Matching skills: React • Same event interest')}
+          ${teamCard('Neural Nexus','Priya Gupta',2,4,78,'python, ML, data','Looking for frontend dev • ML + React synergy')}
+        </div>
+      </div>
+
+      <h2>${icon('users',20)} My Teams</h2>
+      <div class="tp-grid">
+        <div class="tp-card">
+          <div style="background:linear-gradient(135deg,#7c3aed,#6d28d9);height:8px;border-radius:8px 8px 0 0;margin:-16px -16px 12px"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h3>Code Warriors</h3>
+            <span class="pill-badge is-ok">Open</span>
+          </div>
+          <p class="tp-sub">TechFest 2026 • 3/4 members</p>
+          <div class="tp-progress"><div class="tp-progress-fill" style="width:75%"></div></div>
+          <p class="tp-sub">1 spot left</p>
+          <div class="tp-member"><b>Payal Sharma</b> <span class="tp-badge">Leader</span><div class="tp-sub">payal@gcet.ac.in • 9876543210</div></div>
+          <div class="tp-member"><b>Riya Joshi</b><div class="tp-sub">riya@gcet.ac.in • 9876543211</div></div>
+          <div class="tp-member"><b>Vikas Tiwari</b><div class="tp-sub">vikas@gcet.ac.in • 9876543212</div></div>
+        </div>
+        <div class="tp-card">
+          <div style="background:linear-gradient(135deg,#2563eb,#1e40af);height:8px;border-radius:8px 8px 0 0;margin:-16px -16px 12px"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h3>Pixel Pioneers</h3>
+            <span class="pill-badge" style="background:var(--status-err-bg);color:var(--status-err-text)">Full</span>
+          </div>
+          <p class="tp-sub">Photography Walk • 2/2 members</p>
+          <div class="tp-progress"><div class="tp-progress-fill" style="width:100%"></div></div>
+          <p class="tp-sub">Team is full</p>
+          <div class="tp-member"><b>Payal Sharma</b> <span class="tp-badge">Leader</span><div class="tp-sub">payal@gcet.ac.in</div></div>
+          <div class="tp-member"><b>Meera Nair</b><div class="tp-sub">meera@gcet.ac.in</div></div>
+        </div>
+      </div>
+
+      <h2>Requests for You</h2>
+      <div class="tp-card tp-row">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="topbar-avatar">RV</div>
+            <div><b>Rahul Verma</b> wants to join <b>Code Warriors</b><div class="tp-sub">TechFest 2026</div></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="tp-btn">Accept</button>
+          <button class="tp-btn ghost">Decline</button>
+        </div>
+      </div>
+
+      <h2>Requests You Sent</h2>
+      <div class="tp-card tp-row">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="topbar-avatar">AS</div>
+          <span>Invite to <b>Ananya Singh</b> for Code Warriors</span>
+        </div>
+        <span class="tp-badge amber">Pending</span>
+      </div>
+      <div class="tp-card tp-row">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="topbar-avatar">KP</div>
+          <span>Join request to <b>Neural Nexus</b></span>
+        </div>
+        <span class="tp-badge green">Accepted</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderProfile() {
+  return `
+    <section class="cosmic-hero">
+      <div>
+        <div class="cosmic-hero-badge">${icon('sparkles',14)} <span>Student Panel • My Profile</span></div>
+        <h2>My Profile</h2>
+        <p>Your student identity, interests, skills, and preferences.</p>
+      </div>
+    </section>
+
+    <div class="profile-section">
+      <div class="profile-avatar-card">
+        <div class="profile-avatar-big">PS</div>
+        <div class="profile-name">Payal Sharma</div>
+        <div class="profile-college">GCET Engineering</div>
+        <div style="margin-top:.75rem"><span class="pill-badge is-ok">Profile Complete ✓</span></div>
+      </div>
+      <div>
+        <div class="profile-details">
+          <div class="profile-field"><div class="profile-field-label">Student ID</div><div class="profile-field-value">STU2024001</div></div>
+          <div class="profile-field"><div class="profile-field-label">Email</div><div class="profile-field-value">payal@gcet.ac.in</div></div>
+          <div class="profile-field"><div class="profile-field-label">Course</div><div class="profile-field-value">B.Tech CSE</div></div>
+          <div class="profile-field"><div class="profile-field-label">Year</div><div class="profile-field-value">3rd Year</div></div>
+          <div class="profile-field"><div class="profile-field-label">Phone</div><div class="profile-field-value">+91 9876543210</div></div>
+          <div class="profile-field"><div class="profile-field-label">Department</div><div class="profile-field-value">Computer Science</div></div>
+          <div class="profile-field" style="grid-column:1/-1">
+            <div class="profile-field-label">Interests</div>
+            <div class="profile-chips">
+              <span class="profile-chip">Web Development</span>
+              <span class="profile-chip">Machine Learning</span>
+              <span class="profile-chip">UI/UX Design</span>
+              <span class="profile-chip">Hackathons</span>
+              <span class="profile-chip">Open Source</span>
+            </div>
+          </div>
+          <div class="profile-field" style="grid-column:1/-1">
+            <div class="profile-field-label">Skills</div>
+            <div class="profile-chips">
+              <span class="profile-chip">React</span>
+              <span class="profile-chip">JavaScript</span>
+              <span class="profile-chip">Node.js</span>
+              <span class="profile-chip">MongoDB</span>
+              <span class="profile-chip">Python</span>
+              <span class="profile-chip">Figma</span>
+            </div>
+          </div>
+          <div class="profile-field" style="grid-column:1/-1">
+            <div class="profile-field-label">Coding Proficiency</div>
+            <div class="profile-field-value">Intermediate</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderComingSoon(section,title,desc,phase,endpoint) {
+  return `
+    <section class="cosmic-hero">
+      <div>
+        <div class="cosmic-hero-badge">${icon('sparkles',14)} <span>Student Panel • ${section}</span></div>
+        <h2>${section}</h2>
+        <p>${desc.split('.')[0]}.</p>
+      </div>
+    </section>
+    <div class="coming-soon-card">
+      <div class="coming-soon-icon">${icon('ticket',32)}</div>
+      <h3>${title}</h3>
+      <p>${desc}</p>
+      <span class="coming-soon-hint">${icon('sparkles',12)} ${phase} • ${endpoint}</span>
+    </div>
+  `;
+}
+
+// ===== HELPER FUNCTIONS =====
+function statCard(label,value,hint,iconName) {
+  return `<div class="stat-card"><div class="stat-icon">${icon(iconName,22)}</div><div><div class="stat-label">${label}</div><div class="stat-value">${value}</div><div class="stat-hint">${hint}</div></div></div>`;
+}
+function activityItem(text,time,bg,color) {
+  return `<div style="display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;border-radius:var(--radius-sm);background:${bg};border:1px solid ${bg}"><div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div><div style="flex:1;font-size:.82rem;font-weight:500;color:${color}">${text}</div><span style="font-size:.72rem;color:var(--text-muted);flex-shrink:0">${time}</span></div>`;
+}
+function quickAction(label,hint,iconName,page) {
+  return `<div class="quick-action" onclick="navigateTo('${page}')"><div class="quick-action-icon">${icon(iconName,20)}</div><div class="quick-action-label">${label}</div><div class="quick-action-hint">${hint}</div></div>`;
+}
+function teamMemberCard(name,college,skills,score,looking,reason) {
+  const initials = name.split(' ').map(w=>w[0]).join('');
+  return `<div class="tp-card">
+    <div style="background:linear-gradient(135deg,#2563eb,#1e40af);height:6px;border-radius:6px 6px 0 0;margin:-16px -16px 12px"></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <div class="topbar-avatar" style="width:40px;height:40px;font-size:.9rem">${initials}</div>
+      <div><b>${name}</b><div class="tp-sub">${college}</div></div>
+    </div>
+    <span class="tp-badge">Match ${score}%</span>
+    ${looking?'<span class="tp-badge green">Looking for a team</span>':''}
+    <div class="profile-chips" style="margin:8px 0">${skills.split(', ').map(s=>`<span class="profile-chip">${s}</span>`).join('')}</div>
+    <p class="tp-why">Why matched: ${reason}</p>
+    <button class="tp-btn" style="width:100%">Send Invite</button>
+  </div>`;
+}
+function teamCard(name,leader,filled,max,score,skills,reason) {
+  return `<div class="tp-card">
+    <div style="background:linear-gradient(135deg,#7c3aed,#6d28d9);height:6px;border-radius:6px 6px 0 0;margin:-16px -16px 12px"></div>
+    <span class="tp-badge">Match ${score}%</span>
+    <h3>${name}</h3>
+    <p class="tp-sub">Leader: ${leader} • ${max-filled} spot(s) left</p>
+    <div class="tp-progress"><div class="tp-progress-fill" style="width:${Math.round(filled/max*100)}%"></div></div>
+    <p class="tp-sub">${filled}/${max} members</p>
+    <div class="profile-chips" style="margin:6px 0">${skills.split(', ').map(s=>`<span class="profile-chip">${s}</span>`).join('')}</div>
+    <p class="tp-why">Why matched: ${reason}</p>
+    <button class="tp-btn" style="width:100%">Request to Join</button>
+  </div>`;
+}
+
+function switchTab(tab) {
+  document.getElementById('tabLeader').className = tab==='leader'?'on':'';
+  document.getElementById('tabSolo').className = tab==='solo'?'on':'';
+  document.getElementById('tabLeaderContent').style.display = tab==='leader'?'':'none';
+  document.getElementById('tabSoloContent').style.display = tab==='solo'?'':'none';
+}
+
+// ===== INIT =====
+renderPage('dashboard');
+</script>
+</body>
+</html>

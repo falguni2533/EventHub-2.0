@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import MyProfilePage from './pages/MyProfilePage';
+import { Route, Routes } from 'react-router-dom';
 import {
   CalendarCog,
   ClipboardList,
@@ -13,11 +14,9 @@ import DashboardPage from './pages/DashboardPage';
 import EventsPage from './pages/EventsPage';
 import RegistrationsPage from './pages/RegistrationsPage';
 import MyPassesPage from './pages/MyPassesPage';
-import MyTeamPage from './pages/MyTeamPage';
+import TeamPage from './pages/TeamPage';
 import AttendancePage from './pages/AttendancePage';
-import MyProfilePage from './pages/MyProfilePage';
-import MyCertificatesPage from './pages/certificates/MyCertificatesPage';
-import VerifyCertificatePage from './pages/certificates/VerifyCertificatePage';
+import { Toaster } from "./utils/toast";
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminModulePlaceholderPage from './pages/admin/AdminModulePlaceholderPage';
 import ManageCertificatesPage from './pages/admin/ManageCertificatesPage';
@@ -52,8 +51,7 @@ export default function App() {
           <Route path="events" element={<EventsPage />} />
           <Route path="registrations" element={<RegistrationsPage />} />
           <Route path="passes" element={<MyPassesPage />} />
-          <Route path="certificates" element={<MyCertificatesPage />} />
-          <Route path="team" element={<MyTeamPage />} />
+          <Route path="team" element={<TeamPage />} />
           <Route path="attendance" element={<AttendancePage />} />
           <Route path="profile" element={<MyProfilePage />} />
           <Route path="*" element={<NotFoundPage />} />

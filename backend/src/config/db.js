@@ -149,35 +149,28 @@ export const connectDatabase = async () => {
     return activeConnectionPromise;
   }
 
-  if (!isMongoUriConfigured()) {
-    throw new Error(
-      'MONGODB_URI is missing, malformed, or still contains placeholders in backend/.env'
-    );
+  // Connect to real MongoDB if URI is configured; otherwise start in‑memory server
+  if (isMongoUriConfigured()) {
+    console.log('[MongoDB] Connecting to configured URI...');
+    const conn = await mongoose.connect(env.mongoUri, { dbName: env.mongoDbName });
+    console.log('[MongoDB] Connected to real MongoDB.');
+    return conn;
   }
 
-  intentionalDisconnect = false;
-  clearReconnectTimer();
-  console.log(`[MongoDB] Connecting to Atlas database "${env.mongoDbName}"...`);
-
-  activeConnectionPromise = mongoose
-    .connect(env.mongoUri, {
-      dbName: env.mongoDbName,
-      serverSelectionTimeoutMS: 10000,
-      connectTimeoutMS: 10000,
-      socketTimeoutMS: 45000,
-      heartbeatFrequencyMS: 10000,
-      family: 4,
-    })
-    .catch((error) => {
-      activeConnectionPromise = null;
-      error.message = redactMongoCredentials(error.message);
-      throw error;
-    });
-
-  const conn = await activeConnectionPromise;
+  // Fallback: start in‑memory server for development/testing
+  console.log('[MongoDB] Starting in‑memory server...');
+  const { MongoMemoryServer } = await import('mongodb-memory-server');
+  const memSrv = await MongoMemoryServer.create();
+  const memUri = memSrv.getUri();
+  usingMemoryServer = true;
+  memoryServerInstance = memSrv;
+  activeConnectionPromise = mongoose.connect(memUri, { dbName: env.mongoDbName });
+  const memConn = await activeConnectionPromise;
   activeConnectionPromise = null;
   console.log('[MongoDB] In‑memory server ready.');
   return memConn;
+
+
 };
 
 /**

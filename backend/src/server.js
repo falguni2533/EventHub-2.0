@@ -1,3 +1,4 @@
+import dns from 'node:dns';
 import app from './app.js';
 import { env, redactMongoCredentials, validateEnv } from './config/env.js';
 import {
@@ -8,6 +9,9 @@ import {
 
 const STARTUP_RETRY_BASE_MS = 5000;
 const STARTUP_RETRY_MAX_MS = 30000;
+
+// Use public DNS servers to fix "querySrv ECONNREFUSED"
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 let server;
 let isShuttingDown = false;

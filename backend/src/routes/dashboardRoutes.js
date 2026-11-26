@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { protect } from '../middleware/authMiddleware.js';
 import { authorizeRoles } from '../middleware/roleMiddleware.js';
@@ -15,32 +14,19 @@ import {
 } from '../controllers/profileController.js';
 
 import {
-  generateEventCertificates,
-  generateSingleCertificate,
-  getCertificates,
-  getEventsAndParticipants,
-  getMyCertificateDetail,
-  getMyCertificates,
-  revokeCertificate,
-} from '../controllers/certificateController.js';
+  getTeamEvents,
+  getTeamOverview,
+  createTeam,
+  recommendMembers,
+  sendInvite,
+  setLooking,
+  clearLooking,
+  recommendTeams,
+  sendJoinRequest,
+  respondRequest,
+} from '../controllers/teamController.js';
 
-import {
-  checkInPass,
-  downloadMyPass,
-  getAttendanceOverview,
-  getMyPasses,
-  getMyPastPasses,
-  getMyRegistrations,
-  getMyUpcomingPasses,
-  verifyPass,
-} from '../controllers/passController.js';
-
-import {
-  getAdminAttendanceAnalytics,
-  getStudentAttendance,
-} from '../controllers/attendanceController.js';
-
-// Student Routes
+// ---------- Student Routes ----------
 export const studentRouter = Router();
 
 studentRouter.use(protect, authorizeRoles('student'));
@@ -51,21 +37,19 @@ studentRouter.get('/dashboard', getStudentDashboard);
 studentRouter.put('/profile/onboarding', putStudentOnboarding);
 studentRouter.patch('/profile', patchStudentProfile);
 
-// Student Registrations & Passes Routes
-studentRouter.get('/registrations', getMyRegistrations);
-studentRouter.get('/passes', getMyPasses);
-studentRouter.get('/passes/upcoming', getMyUpcomingPasses);
-studentRouter.get('/passes/past', getMyPastPasses);
-studentRouter.get('/passes/:registrationId/download', downloadMyPass);
+// Team Up (fixed paths first, then the /:teamId paths)
+studentRouter.get('/team', getTeamOverview);
+studentRouter.get('/team/events', getTeamEvents);
+studentRouter.post('/team', createTeam);
+studentRouter.post('/team/looking', setLooking);
+studentRouter.delete('/team/looking/:eventId', clearLooking);
+studentRouter.get('/team/recommended-teams', recommendTeams);
+studentRouter.patch('/team/requests/:requestId', respondRequest);
+studentRouter.get('/team/:teamId/recommendations', recommendMembers);
+studentRouter.post('/team/:teamId/invite', sendInvite);
+studentRouter.post('/team/:teamId/join', sendJoinRequest);
 
-// Student Certificates Routes
-studentRouter.get('/certificates', getMyCertificates);
-studentRouter.get('/certificates/:certificateId', getMyCertificateDetail);
-
-// Student Attendance Analytics Route
-studentRouter.get('/attendance', getStudentAttendance);
-
-// Admin Routes
+// ---------- Admin Routes ----------
 export const adminRouter = Router();
 
 adminRouter.use(protect, authorizeRoles('admin'));
@@ -74,16 +58,3 @@ adminRouter.get('/dashboard', getAdminDashboard);
 
 // Admin Profile Routes
 adminRouter.patch('/profile', patchAdminProfile);
-
-// Admin Pass Verification & Attendance Check-in Routes
-adminRouter.get('/attendance', getAttendanceOverview);
-adminRouter.get('/attendance/analytics', getAdminAttendanceAnalytics);
-adminRouter.post('/passes/verify', verifyPass);
-adminRouter.post('/passes/check-in', checkInPass);
-
-// Admin Certificate Management Routes
-adminRouter.get('/certificates', getCertificates);
-adminRouter.get('/certificates/events', getEventsAndParticipants);
-adminRouter.post('/certificates/generate/:eventId', generateEventCertificates);
-adminRouter.post('/certificates/generate-single', generateSingleCertificate);
-adminRouter.patch('/certificates/revoke/:certificateId', revokeCertificate);

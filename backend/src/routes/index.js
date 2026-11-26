@@ -5,6 +5,7 @@ import profileRoutes from './profileRoutes.js';
 import certificateRoutes from './certificateRoutes.js';
 import analyzeRoutes from './analyzeRoutes.js';
 import recommendationRoutes from './recommendationRoutes.js';
+import eventRoutes from './eventRoutes.js';
 import { adminRouter, studentRouter } from './dashboardRoutes.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { authorizeRoles } from '../middleware/roleMiddleware.js';
@@ -27,6 +28,7 @@ router.get('/', (req, res) => {
       recommendations: '/api/recommendations',
       studentDashboard: '/api/student/dashboard',
       adminDashboard: '/api/admin/dashboard',
+      team: '/api/student/team',
     },
   });
 });
@@ -34,11 +36,9 @@ router.get('/', (req, res) => {
 router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
 router.use('/profile', profileRoutes);
-router.use('/certificates', certificateRoutes);
-router.use('/analyze', analyzeRoutes);
+router.use('/events', eventRoutes);
 router.use('/recommendations', recommendationRoutes);
 router.use('/student', studentRouter);
-router.get('/attendance/my', protect, authorizeRoles('student'), getStudentAttendance);
 router.use('/admin', adminRouter);
 
 export default router;
