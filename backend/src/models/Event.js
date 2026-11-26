@@ -47,6 +47,10 @@ const eventSchema = new mongoose.Schema(
       ref: 'User',
       default: null,
     },
+    requiredSkills: {
+      type: [String],
+      default: [],
+    },
   },
   {
     timestamps: true,

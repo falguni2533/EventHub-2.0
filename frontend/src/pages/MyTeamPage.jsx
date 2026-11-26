@@ -1,22 +1,34 @@
 import { Users } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import ComingSoonCard from '../components/common/ComingSoonCard';
+import { useEffect, useState } from 'react';
+import { fetchMyProfile } from '../services/profileService';
 
 export default function MyTeamPage() {
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const data = await fetchMyProfile();
+        setProfile(data);
+      } catch (e) {
+        console.error('Profile load error', e);
+      }
+    };
+    loadProfile();
+  }, []);
+
   return (
     <>
       <PageHeader
         badge="Student Panel • My Team"
         title="Team Management"
-        description="Create squads, invite classmates by college ID, and manage rosters for team competitions."
+        description="Team formation feature has been removed."
       />
-      <ComingSoonCard
-        icon={Users}
-        title="Squad & Roster Workspace"
-        description="Manage hackathon and group event teams, track invite status, and assign team leaders."
-        targetPhase="Upcoming Feature Phase"
-        endpointHint="GET /api/teams/my"
-      />
+      <div className="eh-events-empty">
+        <p>Team functionality has been removed per request.</p>
+      </div>
     </>
   );
 }

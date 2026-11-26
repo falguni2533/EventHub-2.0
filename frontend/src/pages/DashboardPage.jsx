@@ -8,6 +8,7 @@ import {
   CalendarDays,
   ClipboardCheck,
   Compass,
+  GraduationCap,
   IdCard,
   MapPin,
   ScanLine,
@@ -74,7 +75,7 @@ const STUDENT_QUICK_ACTIONS = [
 ];
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { setNotifications } = useOutletContext();
 
   const [dashboardState, setDashboardState] = useState({
@@ -99,6 +100,7 @@ export default function DashboardPage() {
         error: null,
       });
 
+      if (data?.user) updateUser?.(data.user);
       setNotifications?.(data.notifications || []);
     } catch (err) {
       setDashboardState({
@@ -109,7 +111,7 @@ export default function DashboardPage() {
           'Could not retrieve student dashboard metrics.',
       });
     }
-  }, [setNotifications]);
+  }, [setNotifications, updateUser]);
 
   useEffect(() => {
     loadDashboard();
@@ -173,6 +175,22 @@ export default function DashboardPage() {
                 ID: {user?.studentId || '—'}
               </span>
             </span>
+
+            {(user?.course || user?.year) && (
+              <span className="hero-meta-chip">
+                <GraduationCap size={14} aria-hidden="true" />
+                <span>
+                  {[user.course, user.year].filter(Boolean).join(' • ')}
+                </span>
+              </span>
+            )}
+
+            {user?.profileCompleted && user?.onboarding?.codingProficiency && (
+              <span className="hero-meta-chip">
+                <Award size={14} aria-hidden="true" />
+                <span>{user.onboarding.codingProficiency}</span>
+              </span>
+            )}
           </div>
         </div>
 
@@ -188,6 +206,34 @@ export default function DashboardPage() {
           </Link>
         </div>
       </section>
+
+      {/* First-time Student Profile Completion Prompt */}
+      {user?.role === 'student' && !user?.profileCompleted && (
+        <section
+          className="card onboarding-prompt-card"
+          aria-labelledby="dashboard-complete-profile-heading"
+        >
+          <div className="onboarding-prompt-body">
+            <div className="onboarding-prompt-icon" aria-hidden="true">
+              <Sparkles size={22} />
+            </div>
+            <div>
+              <h3 id="dashboard-complete-profile-heading" className="card-title">
+                Complete Your Profile
+              </h3>
+              <p className="card-subtitle">
+                Tell us about your tech interests, skills, and preferred team
+                roles in 8 quick steps to set up your EventHub Student Profile.
+              </p>
+            </div>
+          </div>
+
+          <Link to="/profile?onboarding=1" className="btn-primary">
+            <Sparkles size={15} aria-hidden="true" />
+            <span>Complete Your Profile</span>
+          </Link>
+        </section>
+      )}
 
       {/* Dashboard Error */}
       {error && (

@@ -9,6 +9,8 @@ const READY_STATE_LABELS = {
 };
 
 let listenersRegistered = false;
+let usingMemoryServer = false;
+let memoryServerInstance = null;
 let activeConnectionPromise = null;
 let intentionalDisconnect = false;
 
@@ -61,28 +63,39 @@ export const connectDatabase = async () => {
     return activeConnectionPromise;
   }
 
-  if (!isMongoUriConfigured()) {
-    throw new Error(
-      'MONGODB_URI is missing, malformed, or still contains placeholders in backend/.env'
-    );
+  // Try real MongoDB first
+  if (isMongoUriConfigured()) {
+    console.log(`[MongoDB] Connecting to Atlas database "${env.mongoDbName}"...`);
+    activeConnectionPromise = mongoose
+      .connect(env.mongoUri, {
+        dbName: env.mongoDbName,
+        serverSelectionTimeoutMS: 10000,
+        socketTimeoutMS: 45000,
+      })
+      .catch((error) => {
+        activeConnectionPromise = null;
+        console.warn('[MongoDB] Real DB connection failed, falling back to in‑memory server:', error.message);
+        return null;
+      });
+    const conn = await activeConnectionPromise;
+    if (conn) {
+      activeConnectionPromise = null;
+      return conn;
+    }
   }
 
-  console.log(`[MongoDB] Connecting to Atlas database "${env.mongoDbName}"...`);
-
-  activeConnectionPromise = mongoose
-    .connect(env.mongoUri, {
-      dbName: env.mongoDbName,
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 45000,
-    })
-    .catch((error) => {
-      activeConnectionPromise = null;
-      throw error;
-    });
-
-  const conn = await activeConnectionPromise;
+  // Fallback to mongodb‑memory‑server
+  console.log('[MongoDB] Starting in‑memory server...');
+  const { MongoMemoryServer } = await import('mongodb-memory-server');
+  const memSrv = await MongoMemoryServer.create();
+  const memUri = memSrv.getUri();
+  usingMemoryServer = true;
+  memoryServerInstance = memSrv;
+  activeConnectionPromise = mongoose.connect(memUri, { dbName: env.mongoDbName });
+  const memConn = await activeConnectionPromise;
   activeConnectionPromise = null;
-  return conn;
+  console.log('[MongoDB] In‑memory server ready.');
+  return memConn;
 };
 
 /**

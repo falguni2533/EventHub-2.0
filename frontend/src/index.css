@@ -3297,3 +3297,17 @@ button {
 .verify-back-wrap {
   margin-block-start: 1.35rem;
 }
+
+/* Embedded Feedback Analyzer Iframe */
+.feedback-iframe-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.feedback-iframe {
+  display: block;
+  inline-size: 100%;
+  min-block-size: calc(100dvh - 150px);
+  border: 0;
+  background: transparent;
+}

@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import {
   Award,
+  BadgeCheck,
   Bell,
+  Building,
   Building2,
   CalendarCog,
   CalendarDays,
@@ -74,7 +76,7 @@ const STATUS_BADGE_MAP = {
 };
 
 export default function AdminDashboardPage() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { setNotifications, openNotifications } = useOutletContext();
   const [adminState, setAdminState] = useState({
     loading: true,
@@ -87,6 +89,7 @@ export default function AdminDashboardPage() {
     try {
       const data = await fetchAdminDashboard();
       setAdminState({ loading: false, data, error: null });
+      if (data?.user) updateUser?.(data.user);
       setNotifications?.(data.notifications || []);
     } catch (err) {
       setAdminState({
@@ -95,7 +98,7 @@ export default function AdminDashboardPage() {
         error: err.message || 'Failed to load Admin Dashboard data.',
       });
     }
-  }, [setNotifications]);
+  }, [setNotifications, updateUser]);
 
   useEffect(() => {
     loadAdminDashboard();
@@ -145,6 +148,16 @@ export default function AdminDashboardPage() {
               <IdCard size={14} aria-hidden="true" />
               <span>Staff ID: {user?.studentId || '—'}</span>
             </span>
+            <span className="hero-meta-chip">
+              <BadgeCheck size={14} aria-hidden="true" />
+              <span>{user?.designation || 'Admin'}</span>
+            </span>
+            {user?.department && (
+              <span className="hero-meta-chip">
+                <Building size={14} aria-hidden="true" />
+                <span>{user.department}</span>
+              </span>
+            )}
           </div>
         </div>
 

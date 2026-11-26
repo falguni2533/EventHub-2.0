@@ -16,6 +16,9 @@ export const env = {
   jwtSecret: (process.env.JWT_SECRET || '').trim(),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   adminSetupKey: (process.env.ADMIN_SETUP_KEY || '').trim(),
+  geminiApiKey: (process.env.GEMINI_API_KEY || '').trim(),
+  openaiApiKey: (process.env.OPENAI_API_KEY || '').trim(),
+  allowLocalFallback: process.env.ALLOW_LOCAL_FALLBACK !== 'false',
 };
 
 const PLACEHOLDER_MARKERS = [
