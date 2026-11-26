@@ -19,6 +19,7 @@ import {
   generateSingleCertificate,
   getCertificates,
   getEventsAndParticipants,
+  getMyCertificateDetail,
   getMyCertificates,
   revokeCertificate,
 } from '../controllers/certificateController.js';
@@ -28,6 +29,9 @@ import {
   downloadMyPass,
   getAttendanceOverview,
   getMyPasses,
+  getMyPastPasses,
+  getMyRegistrations,
+  getMyUpcomingPasses,
   verifyPass,
 } from '../controllers/passController.js';
 
@@ -42,12 +46,16 @@ studentRouter.get('/dashboard', getStudentDashboard);
 studentRouter.put('/profile/onboarding', putStudentOnboarding);
 studentRouter.patch('/profile', patchStudentProfile);
 
-// Student Passes Routes
+// Student Registrations & Passes Routes
+studentRouter.get('/registrations', getMyRegistrations);
 studentRouter.get('/passes', getMyPasses);
+studentRouter.get('/passes/upcoming', getMyUpcomingPasses);
+studentRouter.get('/passes/past', getMyPastPasses);
 studentRouter.get('/passes/:registrationId/download', downloadMyPass);
 
 // Student Certificates Routes
 studentRouter.get('/certificates', getMyCertificates);
+studentRouter.get('/certificates/:certificateId', getMyCertificateDetail);
 
 // Admin Routes
 export const adminRouter = Router();

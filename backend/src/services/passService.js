@@ -107,7 +107,12 @@ async function formatPassRecord(rawReg, now = new Date()) {
   const displayStatus = computeDisplayPassStatus(reg, event, now);
   const tab = classifyPassTab(displayStatus, event, now);
 
-  const canCarryQR = Boolean(reg.passToken && reg.status === 'confirmed');
+  const canCarryQR = Boolean(
+    reg.passToken &&
+      reg.status === 'confirmed' &&
+      reg.passStatus !== 'revoked' &&
+      event?.status !== 'cancelled'
+  );
   const qrCode = canCarryQR ? await generateQRDataURL(reg.passToken) : null;
 
   return {
@@ -185,6 +190,39 @@ export async function listStudentPasses(studentId) {
 }
 
 /**
+ * Student: Fetch all event registrations for the authenticated student.
+ */
+export async function listStudentRegistrations(studentId) {
+  const now = new Date();
+  const registrations = await Registration.find({ student: studentId })
+    .populate('event', 'title description category date venue capacity status')
+    .sort({ registeredAt: -1, createdAt: -1 })
+    .lean();
+
+  return registrations
+    .filter((r) => r.event)
+    .map((r) => ({
+      id: r._id.toString(),
+      registrationCode: r.passCode || r._id.toString().slice(-8).toUpperCase(),
+      status: r.status,
+      passStatus: r.passStatus,
+      attendanceStatus: r.attendanceStatus,
+      displayStatus: computeDisplayPassStatus(r, r.event, now),
+      checkedInAt: r.checkedInAt || null,
+      registeredAt: r.registeredAt || r.createdAt,
+      event: {
+        id: r.event._id.toString(),
+        title: r.event.title,
+        description: r.event.description || '',
+        category: r.event.category || 'General',
+        date: r.event.date,
+        venue: r.event.venue || 'Campus Venue',
+        status: r.event.status,
+      },
+    }));
+}
+
+/**
  * Student: Generate downloadable PDF for a specific registration pass owned by studentId.
  */
 export async function buildStudentPassPDF(registrationId, studentId) {
@@ -204,6 +242,13 @@ export async function buildStudentPassPDF(registrationId, studentId) {
   if (rawReg.status !== 'confirmed') {
     throw new AppError(
       `Pass download is unavailable while registration status is "${rawReg.status}".`,
+      400
+    );
+  }
+
+  if (rawReg.passStatus === 'revoked' || rawReg.event.status === 'cancelled') {
+    throw new AppError(
+      'This event pass has been revoked or cancelled and cannot be downloaded.',
       400
     );
   }
@@ -275,6 +320,13 @@ function validatePassEligibility(reg, selectedEventId) {
 
   if (reg.event.status === 'completed') {
     throw new AppError('Event completed: check-in window for this event has closed.', 400);
+  }
+
+  if (reg.event.date && new Date(reg.event.date).getTime() < Date.now()) {
+    throw new AppError(
+      'Event expired: check-in is closed because this event has already ended.',
+      400
+    );
   }
 
   if (reg.event.status === 'draft') {
