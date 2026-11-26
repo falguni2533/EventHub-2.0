@@ -1,6 +1,5 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import {
-  BarChart3,
   CalendarCog,
   ClipboardList,
   GraduationCap,
@@ -20,6 +19,7 @@ import AttendancePage from './pages/AttendancePage';
 import MyProfilePage from './pages/MyProfilePage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminModulePlaceholderPage from './pages/admin/AdminModulePlaceholderPage';
+import FeedbackAnalyzerPage from './pages/admin/FeedbackAnalyzerPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import NotFoundPage from './pages/NotFoundPage';
 
@@ -113,18 +113,9 @@ export default function App() {
           />
           <Route
             path="reports"
-            element={
-              <AdminModulePlaceholderPage
-                badge="Admin Panel • Reports & Analytics"
-                title="Reports & Analytics"
-                description="Monitor event turnout, category performance, and campus engagement."
-                icon={BarChart3}
-                cardTitle="Platform Analytics Suite"
-                cardDescription="Interactive turnout reports, CSV exports, and attendance breakdowns will become available once event activity accumulates."
-                endpointHint="/api/admin/reports"
-              />
-            }
+            element={<Navigate to="/admin/feedback-analyzer" replace />}
           />
+          <Route path="feedback-analyzer" element={<FeedbackAnalyzerPage />} />
           <Route path="profile" element={<MyProfilePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

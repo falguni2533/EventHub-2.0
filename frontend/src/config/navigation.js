@@ -9,7 +9,7 @@ import {
   CalendarCog,
   ClipboardList,
   GraduationCap,
-  BarChart3,
+  MessageSquareText,
 } from 'lucide-react';
 
 export const STUDENT_NAV_ITEMS = [
@@ -101,11 +101,11 @@ export const ADMIN_NAV_ITEMS = [
     description: 'Track and verify event check-in attendance logs.',
   },
   {
-    id: 'admin-reports',
-    label: 'Reports/Analytics',
-    path: '/admin/reports',
-    icon: BarChart3,
-    description: 'View participation trends, turnout metrics, and event analytics.',
+    id: 'admin-feedback-analyzer',
+    label: 'Reports & Analysis',
+    path: '/admin/feedback-analyzer',
+    icon: MessageSquareText,
+    description: 'Analyze student event feedback, sentiment, and evaluation metrics.',
   },
   {
     id: 'admin-profile',
