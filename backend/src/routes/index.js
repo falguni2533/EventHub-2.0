@@ -6,6 +6,9 @@ import certificateRoutes from './certificateRoutes.js';
 import analyzeRoutes from './analyzeRoutes.js';
 import recommendationRoutes from './recommendationRoutes.js';
 import { adminRouter, studentRouter } from './dashboardRoutes.js';
+import { protect } from '../middleware/authMiddleware.js';
+import { authorizeRoles } from '../middleware/roleMiddleware.js';
+import { getStudentAttendance } from '../controllers/attendanceController.js';
 
 const router = Router();
 
@@ -35,6 +38,7 @@ router.use('/certificates', certificateRoutes);
 router.use('/analyze', analyzeRoutes);
 router.use('/recommendations', recommendationRoutes);
 router.use('/student', studentRouter);
+router.get('/attendance/my', protect, authorizeRoles('student'), getStudentAttendance);
 router.use('/admin', adminRouter);
 
 export default router;

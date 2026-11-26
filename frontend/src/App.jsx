@@ -21,6 +21,7 @@ import VerifyCertificatePage from './pages/certificates/VerifyCertificatePage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminModulePlaceholderPage from './pages/admin/AdminModulePlaceholderPage';
 import ManageCertificatesPage from './pages/admin/ManageCertificatesPage';
+import AdminAttendancePage from './pages/admin/AdminAttendancePage';
 import AttendanceVerifyPage from './pages/admin/AttendanceVerifyPage';
 import FeedbackAnalyzerPage from './pages/admin/FeedbackAnalyzerPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
@@ -105,7 +106,7 @@ export default function App() {
               />
             }
           />
-          <Route path="attendance" element={<AttendanceVerifyPage />} />
+          <Route path="attendance" element={<AdminAttendancePage />} />
           <Route path="verify" element={<AttendanceVerifyPage />} />
           <Route path="certificates" element={<ManageCertificatesPage />} />
           <Route

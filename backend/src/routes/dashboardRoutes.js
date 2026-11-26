@@ -35,6 +35,11 @@ import {
   verifyPass,
 } from '../controllers/passController.js';
 
+import {
+  getAdminAttendanceAnalytics,
+  getStudentAttendance,
+} from '../controllers/attendanceController.js';
+
 // Student Routes
 export const studentRouter = Router();
 
@@ -57,6 +62,9 @@ studentRouter.get('/passes/:registrationId/download', downloadMyPass);
 studentRouter.get('/certificates', getMyCertificates);
 studentRouter.get('/certificates/:certificateId', getMyCertificateDetail);
 
+// Student Attendance Analytics Route
+studentRouter.get('/attendance', getStudentAttendance);
+
 // Admin Routes
 export const adminRouter = Router();
 
@@ -69,6 +77,7 @@ adminRouter.patch('/profile', patchAdminProfile);
 
 // Admin Pass Verification & Attendance Check-in Routes
 adminRouter.get('/attendance', getAttendanceOverview);
+adminRouter.get('/attendance/analytics', getAdminAttendanceAnalytics);
 adminRouter.post('/passes/verify', verifyPass);
 adminRouter.post('/passes/check-in', checkInPass);
 
